@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#3b82f6">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>Từ Vựng Nhật Nhập Môn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;800&family=Klee+One:wght@600&family=Noto+Sans+JP:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #eef5ff; --panel: #ffffff; --ink: #1f2d4a; --muted: #7487a6; --line: #dce7f7;
+    --main: #3b82f6; --main-dark: #2563c9; --main-soft: #e3eeff; --bad: #ef6b6b; --bad-soft: #ffe9e9; --green: #2f9e6e; --green-soft: #e2f5ec; --gold: #e9a23b; --blue: #3f7fd6;
+    --shadow: 0 4px 16px rgba(40,90,180,.10);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #121a2a; --panel: #1c263a; --ink: #eaf1ff; --muted: #93a5c4; --line: #2c3a55;
+      --main-soft: #1f3460; --bad-soft: #4a2730; --green-soft: #1f3d31; --shadow: 0 2px 10px rgba(0,0,0,.3); }
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; }
+  body { background: radial-gradient(circle at 15% 0%, var(--main-soft) 0%, var(--bg) 45%) fixed var(--bg); color: var(--ink); font-family: "Be Vietnam Pro", system-ui, sans-serif; min-height: 100vh; }
+  .jp { font-family: "Noto Sans JP", "Yu Gothic", sans-serif; }
+  button { font: inherit; cursor: pointer; border: none; color: inherit; background: none; }
+  input { font: inherit; }
+  .hidden { display: none !important; }
+  .wrap { max-width: 760px; margin: 0 auto; padding: max(14px, env(safe-area-inset-top)) 16px calc(96px + env(safe-area-inset-bottom)); }
+  .tabbar { position: fixed; left: 0; right: 0; bottom: 0; display: flex; background: var(--panel); box-shadow: 0 -4px 18px rgba(40,90,180,.12); padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); z-index: 5; border-radius: 22px 22px 0 0; }
+  .tabbar button { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; font-size: 11px; font-weight: 600; color: var(--muted); padding: 6px 0; border-radius: 14px; position: relative; }
+  .tabbar button span { font-size: 22px; line-height: 1; filter: grayscale(.6); }
+  .tabbar button.on { color: var(--main); background: var(--main-soft); }
+  .tabbar button.on span { filter: none; }
+  .tabbar i { position: absolute; top: 2px; left: 55%; background: var(--bad); color: #fff; font-style: normal; font-size: 10px; border-radius: 9px; padding: 1px 5px; }
+  .tabbar i:empty { display: none; }
+  @media (min-width: 900px) { .tabbar { max-width: 560px; margin: 0 auto; border-radius: 22px; bottom: 12px; } }
+  .badge { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 9px; background: var(--main-soft); color: var(--main); font-weight: 600; }
+  .iconbtn, .pill, .opt { min-height: 44px; }
+  .flash { touch-action: pan-y; transition: transform .15s; }
+  .ghep { display: grid; grid-template-columns: 1.1fr 1fr 1.2fr; gap: 8px; }
+  .ghep button { min-height: 64px; padding: 8px 6px; word-break: break-word; border-radius: 16px; background: var(--panel); box-shadow: var(--shadow); border: 2px solid transparent; font-weight: 600; font-size: 15px; }
+  .ghep .cot-tieu { text-align: center; font-size: 13px; font-weight: 700; color: var(--muted); }
+  .ghep button { font-size: 14px; }
+  .ghep button.jp { font-size: 18px; color: var(--main-dark); }
+  .ghep button.ro { color: #0f9d8a; }
+  .ghep button.chon { border-color: var(--main); background: var(--main-soft); }
+  .ghep button.xong { opacity: 0; pointer-events: none; transition: opacity .4s; }
+  .ghep button.sai { border-color: var(--bad); animation: lac .3s; }
+  @keyframes lac { 25% { transform: translateX(-5px) } 75% { transform: translateX(5px) } }
+  header.top { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+  header.top h1 { font-size: 20px; margin: 0; flex: 1; }
+  .iconbtn { width: 42px; height: 42px; border-radius: 12px; background: var(--panel); box-shadow: var(--shadow); font-size: 20px; display: grid; place-items: center; }
+  .card { background: var(--panel); border-radius: 22px; box-shadow: var(--shadow); padding: 16px; }
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 14px; }
+  .stat { text-align: center; padding: 12px 6px; }
+  .stat b { display: block; font-size: 24px; }
+  .stat span { font-size: 12px; color: var(--muted); }
+  .bigbtn { width: 100%; padding: 14px; border-radius: 18px; font-weight: 800; font-size: 16px; background: var(--main); color: #fff; box-shadow: 0 4px 0 var(--main-dark); }
+  .bigbtn:active { transform: translateY(2px); box-shadow: none; }
+  .bigbtn.alt { background: var(--panel); color: var(--ink); box-shadow: var(--shadow); border: 1.5px solid var(--line); }
+  .bigbtn:disabled { opacity: .5; }
+  .row { display: flex; gap: 10px; }
+  .row > * { flex: 1; }
+  h2 { font-size: 16px; margin: 20px 0 10px; }
+  .lessons { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 10px; }
+  .lesson { text-align: left; padding: 14px; display: flex; gap: 12px; align-items: center; }
+  .lesson .num { width: 44px; height: 44px; border-radius: 12px; background: var(--main-soft); color: var(--main); font-weight: 800; display: grid; place-items: center; flex: none; }
+  .lesson .t { font-size: 14px; line-height: 1.3; }
+  .lesson .sub { font-size: 12px; color: var(--muted); }
+  .bar { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; margin-top: 6px; }
+  .bar i { display: block; height: 100%; background: var(--green); }
+  .search { width: 100%; padding: 12px 14px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--panel); color: var(--ink); margin-bottom: 10px; }
+  .tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; background: var(--panel); padding: 5px; border-radius: 14px; box-shadow: var(--shadow); margin-bottom: 14px; }
+  .tabs button { flex: 1 0 auto; padding: 10px 12px; border-radius: 10px; font-weight: 600; font-size: 14px; white-space: nowrap; }
+  .tabs button.on { background: var(--main); color: #fff; }
+  /* Thẻ học */
+  .flash { text-align: center; padding: 22px 16px; min-height: 340px; display: flex; flex-direction: column; justify-content: center; position: relative; }
+  .flash .sec { position: absolute; top: 12px; left: 14px; right: 50px; text-align: left; font-size: 12px; color: var(--muted); }
+  .flash .star { position: absolute; top: 6px; right: 8px; font-size: 24px; padding: 6px; }
+  .kana { font-size: 18px; color: var(--muted); min-height: 26px; }
+  .word { font-size: clamp(34px, 11vw, 64px); font-weight: 700; line-height: 1.5; margin: 4px 0; word-break: break-all; }
+  ruby rt { font-size: .32em; font-weight: 500; color: var(--main); letter-spacing: 0; }
+  .list .w ruby rt { font-size: .5em; }
+  .hanlist { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; margin-top: 12px; }
+  .hanbtn { display: flex; align-items: center; gap: 6px; padding: 6px 12px; min-height: 40px; border-radius: 12px; background: var(--main-soft); color: var(--main-dark); font-size: 13px; font-weight: 600; }
+  .hanbtn b { font-size: 20px; }
+  .sheet-nen { position: fixed; inset: 0; background: rgba(15,30,60,.45); z-index: 20; display: flex; align-items: flex-end; justify-content: center; }
+  .sheet { background: var(--panel); width: 100%; max-width: 560px; max-height: 88vh; overflow-y: auto; border-radius: 24px 24px 0 0; padding: 20px 16px calc(16px + env(safe-area-inset-bottom)); }
+  .hanto { font-size: 76px; line-height: 1; width: 104px; height: 104px; display: grid; place-items: center; background: var(--main-soft); border-radius: 20px; margin-right: 14px; }
+  .hanbox { background: var(--bg); border-radius: 14px; padding: 10px 12px; margin-top: 10px; font-size: 14px; }
+  .hanbox .docs { font-size: 18px; margin-top: 4px; }
+  .meo { text-align: left; background: #fff8e6; border-radius: 14px; padding: 10px 12px; margin-top: 12px; font-size: 14px; line-height: 1.5; }
+  .meo > div + div { margin-top: 4px; }
+  .meo-tieu { font-weight: 800; color: #b7791f; }
+  @media (prefers-color-scheme: dark) { .meo { background: #3a3220; } .meo-tieu { color: #f0c36d; } }
+  .bp { display: inline-block; background: var(--panel); border-radius: 10px; padding: 2px 8px; margin: 2px 0; }
+  .vdtu { border-top: 1px solid var(--line); padding-top: 6px; margin-top: 6px; }
+  .romaji { font-size: 18px; color: var(--blue); min-height: 26px; }
+  .accent { font-size: 13px; color: var(--muted); }
+  .mean { font-size: 22px; font-weight: 600; margin-top: 14px; min-height: 32px; }
+  .mean.cover { color: transparent; background: var(--line); border-radius: 10px; cursor: pointer; }
+  .mean.cover::after { content: "Chạm để xem nghĩa"; color: var(--muted); font-size: 15px; font-weight: 400; }
+  .tools { display: flex; justify-content: center; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+  .pill { padding: 9px 14px; border-radius: 999px; background: var(--bg); border: 1.5px solid var(--line); font-size: 14px; font-weight: 600; }
+  .pill.on { background: var(--main-soft); border-color: var(--main); color: var(--main); }
+  .nav { display: flex; gap: 10px; margin-top: 12px; align-items: center; }
+  .nav .count { flex: 0 0 auto; color: var(--muted); font-size: 14px; min-width: 70px; text-align: center; }
+  .rate { display: flex; gap: 10px; margin-top: 12px; }
+  .rate button { flex: 1; padding: 14px 6px; border-radius: 14px; font-weight: 800; color: #fff; }
+  .rate .no { background: var(--bad); } .rate .mid { background: var(--gold); } .rate .yes { background: var(--green); }
+  /* Luyện viết */
+  .writebox { position: relative; width: 100%; aspect-ratio: 1.6; background: var(--panel); border-radius: 18px; box-shadow: var(--shadow); overflow: hidden; touch-action: none; }
+  .writebox .ghost { position: absolute; inset: 0; display: grid; place-items: center; font-family: "Klee One", "Noto Sans JP", serif; color: var(--ink); opacity: .13; pointer-events: none; white-space: nowrap; }
+  .writebox .grid { position: absolute; inset: 0; pointer-events: none; background:
+      linear-gradient(var(--line), var(--line)) center/100% 1px no-repeat,
+      linear-gradient(var(--line), var(--line)) center/1px 100% no-repeat; }
+  .writebox canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  /* Danh sách */
+  .list .item { display: flex; gap: 10px; align-items: center; padding: 10px 4px; border-bottom: 1px solid var(--line); }
+  .list .item:last-child { border: none; }
+  .list .w { font-size: 20px; font-weight: 700; }
+  .list .k { font-size: 13px; color: var(--muted); }
+  .list .r { font-size: 13px; color: var(--blue); }
+  .list .v { flex: 1; text-align: right; font-size: 14px; }
+  .list .secttl { font-size: 13px; color: var(--main); font-weight: 600; padding: 14px 4px 4px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--line); flex: none; }
+  .dot.l1 { background: var(--gold); } .dot.l2 { background: #9ccf6e; } .dot.l3 { background: var(--green); }
+  /* Kiểm tra */
+  .q { text-align: center; padding: 22px 16px; }
+  .q .ask { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+  .q .prompt { font-size: clamp(26px, 8vw, 46px); font-weight: 700; margin: 8px 0 16px; }
+  .q .prompt.vi { font-family: "Be Vietnam Pro", sans-serif; font-size: 24px; }
+  .opts { display: grid; gap: 10px; }
+  .opt { padding: 14px; border-radius: 14px; border: 2px solid var(--line); background: var(--bg); font-size: 17px; font-weight: 600; text-align: left; }
+  .opt.ok { border-color: var(--green); background: var(--green-soft); }
+  .opt.bad { border-color: var(--bad); background: var(--bad-soft); }
+  .typein { width: 100%; padding: 14px; border-radius: 14px; border: 2px solid var(--line); background: var(--bg); color: var(--ink); font-size: 18px; text-align: center; }
+  .feedback { margin-top: 12px; min-height: 24px; font-weight: 600; }
+  .progress { height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; margin-bottom: 12px; }
+  .progress i { display: block; height: 100%; background: var(--main); transition: width .3s; }
+  .done { text-align: center; padding: 30px 16px; }
+  .done .big { font-size: 56px; }
+  .toast { position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%); background: var(--ink); color: var(--bg); padding: 10px 16px; border-radius: 12px; font-size: 14px; z-index: 9; max-width: 90vw; }
+  .setting { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--line); gap: 12px; }
+  .setting:last-child { border: none; }
+  .setting small { display: block; color: var(--muted); }
+  .switch { width: 50px; height: 30px; border-radius: 15px; background: var(--line); position: relative; flex: none; }
+  .switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; transition: left .2s; }
+  .switch.on { background: var(--green); } .switch.on::after { left: 23px; }
+  .muted { color: var(--muted); font-size: 13px; }
+  @keyframes pop { from { transform: scale(.96); opacity: .4 } to { transform: none; opacity: 1 } }
+  .pop { animation: pop .2s ease-out; }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<div class="toast hidden" id="toast"></div>
+<nav class="tabbar" id="tabbar">
+  <button data-k="home" onclick="manChinh()"><span>🏠</span>Trang chủ</button>
+  <button data-k="bai" onclick="manDsBai()"><span>📚</span>Bài học</button>
+  <button data-k="on" onclick="canOn().length ? batDauThe(canOn(), 'Ôn tập hôm nay') : toast('Chưa có từ cần ôn. Hãy học từ mới trước nhé!')"><span>🔁</span>Ôn tập<i id="soOn"></i></button>
+  <button data-k="sao" onclick="Object.keys(S.sao).length ? batDauThe(ALL.filter(w=>S.sao[w.id]), 'Từ khó ⭐') : toast('Chạm ☆ trên thẻ để đánh dấu từ khó.')"><span>⭐</span>Từ khó</button>
+  <button data-k="cai" onclick="manCaiDat()"><span>⚙️</span>Cài đặt</button>
+</nav>
+<script src="tu-vung.js"></script>
+<script src="tieng-viet.js"></script>
+<script src="am-thanh.js" onerror="window.AM={}"></script>
+<script src="chu-han.js" onerror="window.FURI={};window.HAN={};window.BP={}"></script>
+<script>
+// ===== Dữ liệu & lưu tiến độ =====
+const KEY = 'tuvung-nhapmon-v1';
+const ALL = [];
+BAI.forEach((b, bi) => b.tu.forEach((t, i) => ALL.push({ id: b.so + '-' + i, bai: b.so, chu: t[0], kana: t[1], romaji: t[2], nghia: t[3], muc: t[4], tram: t[5] })));
+const BY_ID = Object.fromEntries(ALL.map(w => [w.id, w]));
+const DAY = 86400000;
+const KHOANG = [0, 1, 3, 7, 14, 30, 60]; // số ngày chờ trước lần ôn tiếp theo, theo mức nhớ
+
+let S = { tu: {}, sao: {}, chuoi: { ngay: '', so: 0 }, homnay: { ngay: '', so: 0 }, cai: { romaji: true, kana: true, tudoc: false, tocdo: 0.85, muctieu: 20 } };
+try { const d = JSON.parse(localStorage.getItem(KEY)); if (d) S = { ...S, ...d, cai: { ...S.cai, ...d.cai } }; } catch (e) {}
+const luu = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
+const ngayNay = () => new Date().toLocaleDateString('sv');
+const muc = id => (S.tu[id] ? S.tu[id].m : 0);
+const daHoc = id => !!S.tu[id];
+const canOn = () => ALL.filter(w => S.tu[w.id] && S.tu[w.id].h <= Date.now());
+
+function ghiNho(id, ketQua) { // ketQua: 0 quên, 1 tạm, 2 nhớ
+  const t = S.tu[id] || { m: 0, h: 0 };
+  t.m = ketQua === 0 ? 1 : ketQua === 1 ? Math.max(1, t.m) : Math.min(t.m + 1, KHOANG.length - 1);
+  t.h = Date.now() + (ketQua === 0 ? 10 * 60000 : KHOANG[t.m] * DAY - 3600000);
+  S.tu[id] = t;
+  const n = ngayNay();
+  if (S.homnay.ngay !== n) S.homnay = { ngay: n, so: 0 };
+  S.homnay.so++;
+  if (S.chuoi.ngay !== n) {
+    const homqua = new Date(Date.now() - DAY).toLocaleDateString('sv');
+    S.chuoi = { ngay: n, so: S.chuoi.ngay === homqua ? S.chuoi.so + 1 : 1 };
+  }
+  luu();
+}
+
+// ===== Phát âm (giọng đọc có sẵn trong máy, miễn phí) =====
+let giongNhat = null;
+function timGiong() { giongNhat = speechSynthesis.getVoices().find(v => /ja[-_]JP/i.test(v.lang)) || null; }
+if ('speechSynthesis' in window) { timGiong(); speechSynthesis.onvoiceschanged = timGiong; }
+let amDang = null;
+function doc(w) {
+  const am = typeof AM !== 'undefined' && w.id && AM[w.id];
+  if (am) {
+    if (amDang) amDang.pause();
+    amDang = new Audio('audio/' + w.id + '.mp3');
+    amDang.playbackRate = Math.min(1, S.cai.tocdo + 0.15);
+    amDang.play().catch(() => docMay(w));
+    return;
+  }
+  docMay(w);
+}
+function docMay(w) {
+  if (!('speechSynthesis' in window)) return toast('Máy này không hỗ trợ đọc tiếng.');
+  const text = (w.kana || w.chu).replace(/[～~▲（）()]/g, ' ').replace(/／/g, '、');
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(text);
+  u.lang = 'ja-JP'; u.rate = S.cai.tocdo; if (giongNhat) u.voice = giongNhat;
+  speechSynthesis.speak(u);
+  if (!giongNhat && !doc.daBao) { doc.daBao = true; toast('Nếu không nghe thấy: máy cần cài giọng đọc tiếng Nhật (xem Cài đặt).'); }
+}
+
+// ===== Tiện ích =====
+const $ = s => document.querySelector(s);
+const app = $('#app');
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const tron = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.random() * (i + 1) | 0; [a[i], a[j]] = [a[j], a[i]]; } return a; };
+let toastT;
+function toast(m) { const t = $('#toast'); t.textContent = m; t.classList.remove('hidden'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.add('hidden'), 2600); }
+const tuCuaBai = so => ALL.filter(w => w.bai === so);
+const tenBai = so => BAI.find(b => b.so === so).ten;
+const viBai = so => (BAI_VI[so] || ["", "📘"])[0];
+const hinhBai = so => (BAI_VI[so] || ["", "📘"])[1];
+const viMuc = m => MUC_VI[m] || "";
+const coKana = w => w.kana && w.kana !== w.chu;
+
+// ===== Màn hình chính =====
+function loiChao() {
+  const g = new Date().getHours();
+  return (g < 11 ? "おはよう! Chào buổi sáng" : g < 18 ? "こんにちは! Chào bạn" : "こんばんは! Chào buổi tối") + " – học vài từ nhé 😊";
+}
+function manChinh() {
+  dungLuyenViet();
+  const due = canOn().length, hoc = Object.keys(S.tu).length, thuoc = ALL.filter(w => muc(w.id) >= 3).length;
+  const homnay = S.homnay.ngay === ngayNay() ? S.homnay.so : 0;
+  const chuoi = (S.chuoi.ngay === ngayNay() || S.chuoi.ngay === new Date(Date.now() - DAY).toLocaleDateString('sv')) ? S.chuoi.so : 0;
+  const tiep = BAI.find(b => tuCuaBai(b.so).some(w => !daHoc(w.id)));
+  THE = null;
+  app.innerHTML = `
+    <header class="top"><span style="font-size:34px">🎌</span><h1>Từ vựng Nhật – Nhập môn<span class="muted" style="display:block;font-weight:400;font-size:13px">${loiChao()}</span></h1></header>
+    <div class="stats">
+      <div class="card stat"><b>🔥 ${chuoi}</b><span>ngày liên tiếp</span></div>
+      <div class="card stat"><b>${homnay}/${S.cai.muctieu}</b><span>lượt học hôm nay</span><div class="bar"><i style="width:${Math.min(100, homnay / S.cai.muctieu * 100)}%"></i></div></div>
+      <div class="card stat"><b>${thuoc}</b><span>từ đã thuộc / ${ALL.length}</span></div>
+    </div>
+    ${tiep ? `<button class="bigbtn" style="margin-bottom:10px" onclick="manBai(${tiep.so})">▶ Học tiếp: Bài ${tiep.so} – ${esc(viBai(tiep.so))}</button>` : ''}
+    <div class="row">
+      <button class="bigbtn alt" ${due ? '' : 'disabled'} onclick="batDauThe(canOn(), 'Ôn tập hôm nay', true)">🔁 Ôn tập (${due})</button>
+      <button class="bigbtn alt" ${hoc >= 4 ? '' : 'disabled'} onclick="batDauKiemTra(ALL.filter(w=>daHoc(w.id)), 'Kiểm tra tổng hợp')">📝 Kiểm tra</button>
+    </div>
+    <h2>Tìm từ</h2>
+    <input class="search" id="tim" placeholder="Gõ tiếng Việt, romaji hoặc chữ Nhật…" oninput="timTu(this.value)">
+    <div id="ketqua"></div>
+    <h2>Các bài học</h2>
+    <div class="lessons">${BAI.map(theBai).join('')}</div>
+    <p class="muted" style="text-align:center;margin-top:24px">Nguồn từ vựng và audio: giáo trình “Tiếng Nhật trong đời sống – Nhập môn” (Irodori), ©The Japan Foundation.</p>`;
+  datTab('home');
+  window.scrollTo(0, 0);
+}
+
+function boDau(s) { return s.normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/đ/g, 'd').toLowerCase(); }
+function timTu(q) {
+  const box = $('#ketqua'); q = q.trim();
+  if (!q) return box.innerHTML = '';
+  const qn = boDau(q);
+  const kq = ALL.filter(w => w.chu.includes(q) || w.kana.includes(q) || boDau(w.nghia).includes(qn) || w.romaji.toLowerCase().replace(/[\s-]/g, '').includes(qn.replace(/[\s-]/g, ''))).slice(0, 30);
+  box.innerHTML = `<div class="card list" style="margin-bottom:10px">${kq.length ? kq.map(dongTu).join('') : '<div class="muted">Không tìm thấy.</div>'}</div>`;
+}
+function dongTu(w) {
+  return `<div class="item"><span class="dot l${Math.min(3, muc(w.id))}"></span>
+    <div><div class="w jp">${chuRuby(w)}</div>${coKana(w) && !FURI[w.id] ? `<div class="k jp">${esc(w.kana)}</div>` : ''}<div class="r">${esc(w.romaji)}</div></div>
+    <div class="v">${esc(w.nghia)}<div class="muted">Bài ${w.bai}</div></div>
+    <button class="iconbtn" style="width:36px;height:36px;font-size:16px" onclick="doc(BY_ID['${w.id}'])">🔊</button></div>`;
+}
+
+// ===== Màn bài học =====
+function manBai(so, tab = 'hoc') {
+  dungLuyenViet();
+  const ds = tuCuaBai(so);
+  datTab('bai');
+  let html = `<header class="top"><button class="iconbtn" onclick="manDsBai()">←</button>
+    <h1><span class="muted" style="font-size:13px;display:block">${hinhBai(so)} Bài ${so} · <span class="jp">${esc(tenBai(so))}</span></span>${esc(viBai(so))}</h1></header>
+    <div class="tabs">${[['hoc', '📖 Học'], ['ds', '📋 Từ'], ['viet', '✍️ Viết'], ['ghep', '🧩 Ghép'], ['kt', '📝 Kiểm tra']].map(([k, t]) => `<button class="${tab === k ? 'on' : ''}" onclick="manBai(${so},'${k}')">${t}</button>`).join('')}</div>`;
+  if (tab === 'hoc') {
+    const moi = ds.filter(w => !daHoc(w.id)).length;
+    html += `<div class="card" style="text-align:center">
+      <div style="font-size:44px">${hinhBai(so)}</div>
+      <p style="margin-top:4px">Bài này có <b>${ds.length}</b> từ, còn <b>${moi}</b> từ mới.${moi ? ' Cố lên nhé! 💪' : ' Bạn đã học hết bài này rồi 🎉'}</p>
+      <div class="opts">
+        <button class="bigbtn" ${moi ? '' : 'disabled'} onclick="batDauThe(tuCuaBai(${so}).filter(w=>!daHoc(w.id)).slice(0,10), 'Bài ${so}: 10 từ mới', true)">Học 10 từ mới</button>
+        <button class="bigbtn alt" onclick="batDauThe(tuCuaBai(${so}), 'Bài ${so}: cả bài', true)">Xem lần lượt cả bài</button>
+        <button class="bigbtn alt" onclick="batDauThe(tron(tuCuaBai(${so})), 'Bài ${so}: trộn ngẫu nhiên', true)">Xem trộn ngẫu nhiên</button>
+      </div></div>`;
+  } else if (tab === 'ds') {
+    let last = null;
+    html += `<div class="card list">${ds.map(w => { const h = w.muc !== last ? `<div class="secttl"><span class="jp">${esc(w.muc || '')}</span>${viMuc(w.muc) ? ' – ' + esc(viMuc(w.muc)) : ''}</div>` : ''; last = w.muc; return h + dongTu(w); }).join('')}</div>
+      <p class="muted">Chấm màu: xám = chưa học · vàng = mới học · xanh = đã thuộc.</p>`;
+  } else if (tab === 'ghep') {
+    app.innerHTML = html + '<div id="ghepbox"></div>'; return troGhep(ds);
+  } else if (tab === 'viet') {
+    app.innerHTML = html; return luyenViet(ds, 0, so);
+  } else {
+    app.innerHTML = html; return batDauKiemTra(ds, 'Bài ' + so, so);
+  }
+  app.innerHTML = html; datTab('bai'); window.scrollTo(0, 0);
+}
+
+// ===== Thẻ học từng từ =====
+let THE = null;
+function batDauThe(ds, ten, choCham) {
+  if (!ds.length) return toast('Không có từ nào.');
+  THE = { ds, i: 0, ten, mo: false };
+  veThe();
+}
+function veThe() {
+  dungLuyenViet();
+  const { ds, i, ten } = THE, w = ds[i];
+  if (!w) return xongThe();
+  const coFuri = S.cai.kana && FURI[w.id];
+  app.innerHTML = `<header class="top"><button class="iconbtn" onclick="ve_lai()">←</button><h1>${esc(ten)}</h1></header>
+    <div class="progress"><i style="width:${i / ds.length * 100}%"></i></div>
+    <div class="card flash pop">
+      <div class="sec">Bài ${w.bai}${w.muc ? ' · <span class="jp">' + esc(w.muc) + '</span>' + (viMuc(w.muc) ? ' (' + esc(viMuc(w.muc)) + ')' : '') : ''}</div>
+      <button class="star" onclick="doiSao('${w.id}')">${S.sao[w.id] ? '⭐' : '☆'}</button>
+      <div class="kana jp">${S.cai.kana && coKana(w) && !coFuri ? esc(w.kana) : ''}</div>
+      <div class="word jp">${chuRuby(w)}</div>
+      <div class="romaji">${S.cai.romaji ? esc(w.romaji) : ''}</div>
+      <div class="accent jp" title="Trọng âm: ↓ là chỗ hạ giọng, ○ là không hạ giọng">${esc(w.tram)}</div>
+      <div class="mean">${esc(w.nghia)}</div>
+      ${meoNho(w)}
+      ${nutHan(w)}
+      <div style="margin-top:8px">${AM[w.id] === 'g' ? '<span class="badge">🎧 Giọng giáo trình</span>' : AM[w.id] ? '<span class="badge">🎙️ Giọng đọc chuẩn</span>' : ''}</div>
+      <div class="tools">
+        <button class="pill" onclick="doc(THE.ds[THE.i])">🔊 Nghe</button>
+        <button class="pill" onclick="vietTuNay()">✍️ Tập viết</button>
+        <button class="pill ${S.cai.romaji ? 'on' : ''}" onclick="S.cai.romaji=!S.cai.romaji;luu();veThe()">Romaji</button>
+        <button class="pill ${S.cai.kana ? 'on' : ''}" onclick="S.cai.kana=!S.cai.kana;luu();veThe()" title="Bật/tắt hiragana trên chữ Hán">あ Cách đọc</button>
+      </div>
+    </div>
+    <div class="rate">
+      <button class="no" onclick="chamThe(0)">Chưa nhớ</button>
+      <button class="mid" onclick="chamThe(1)">Hơi nhớ</button>
+      <button class="yes" onclick="chamThe(2)">Đã nhớ</button></div>
+    <div class="nav"><button class="bigbtn alt" ${i ? '' : 'disabled'} onclick="THE.i--;veThe()">← Từ trước</button>
+      <span class="count">${i + 1} / ${ds.length}</span></div>
+    <p class="muted" style="text-align:center">👉 Vuốt phải = Đã nhớ · 👈 Vuốt trái = Chưa nhớ</p>`;
+  if (S.cai.tudoc) doc(w);
+}
+// Chữ có hiragana nằm ngay trên từng chữ Hán
+function chuRuby(w) {
+  const f = S.cai.kana && FURI[w.id];
+  if (!f) return esc(w.chu);
+  return f.map(([t, r]) => r ? `<ruby>${esc(t)}<rt>${esc(r)}</rt></ruby>` : esc(t)).join('');
+}
+// Cấu tạo từ và mẹo nhớ: âm Hán Việt của từng chữ Hán, đuôi hiragana, từ ngoại lai
+function meoNho(w) {
+  const chu = w.chu.replace(/[～~（）()／\s]/g, '');
+  const han = [...chu].filter(c => HAN[c]);
+  const dong = [];
+  if (han.length) {
+    const hv = han.map(c => HAN[c].v.split(',')[0].trim().toUpperCase());
+    dong.push(`<b>Âm Hán Việt:</b> ${han.map((c, k) => `<span class="jp">${c}</span> <b style="color:var(--main)">${esc(hv[k])}</b>`).join(' + ')}` +
+      (han.length > 1 ? ` → <b>${esc(hv.join(' '))}</b>` : ''));
+    const f = FURI[w.id];
+    if (f && f.some(([t, r], k) => r && f[k + 1] && !f[k + 1][1] && /^[ぁ-ん]/.test(f[k + 1][0])))
+      dong.push('Phần hiragana đi sau chữ Hán gọi là <b>okurigana</b> (đuôi chữ), phần này thay đổi khi chia động từ, tính từ.');
+    if (han.length > 1) dong.push('Mẹo: đọc âm Hán Việt của cả từ, nhiều từ có âm và nghĩa gần với tiếng Việt.');
+  } else if (/^[ァ-ヶー・]+$/.test(chu)) {
+    dong.push(`<b>Từ ngoại lai</b> viết bằng Katakana. Đọc to romaji “${esc(w.romaji)}” để nhận ra từ gốc (thường là tiếng Anh).`);
+  } else if (/^[ぁ-んー]+$/.test(chu)) {
+    dong.push('Từ viết bằng <b>Hiragana</b>. Hãy nhớ qua âm đọc: bấm 🔊 Nghe và đọc to theo vài lần.');
+  }
+  return dong.length ? `<div class="meo"><div class="meo-tieu">💡 Cấu tạo & mẹo nhớ</div>${dong.map(d => `<div>${d}</div>`).join('')}</div>` : '';
+}
+// Các nút chữ Hán trong từ, chạm để xem bộ thủ và cách đọc
+function nutHan(w) {
+  const ds = [...new Set([...w.chu].filter(c => HAN[c]))];
+  if (!ds.length) return '';
+  return `<div class="hanlist"><span class="muted">Chữ Hán:</span>${ds.map(c => `<button class="hanbtn" onclick="xemHan('${c}','${w.id}')"><b class="jp">${c}</b>${esc(HAN[c].v.split(',')[0])}</button>`).join('')}</div>`;
+}
+function docTrongTu(c, id) { const f = FURI[id]; const x = f && f.find(([t]) => t === c); return x ? x[1] : ''; }
+function xemHan(c, id) {
+  const h = HAN[c], hira = s => s.replace(/[ァ-ヶ]/g, x => String.fromCharCode(x.charCodeAt(0) - 96));
+  const doc = docTrongTu(c, id);
+  const vd = ALL.filter(w => w.id !== id && w.chu.includes(c) && FURI[w.id]).slice(0, 8);
+  const kun = h.kun.map(k => { const [a, b] = k.replace(/-/g, '').split('.'); return b ? `${a}<span class="muted">${b}</span>` : a; });
+  const sheet = document.createElement('div');
+  sheet.className = 'sheet-nen';
+  sheet.onclick = e => { if (e.target === sheet) sheet.remove(); };
+  sheet.innerHTML = `<div class="sheet pop">
+    <div class="row" style="align-items:center">
+      <div class="hanto jp" style="flex:0 0 auto">${c}</div>
+      <div><div style="font-size:22px;font-weight:800">${esc(h.v || '—')}</div><div class="muted">Âm Hán Việt</div>
+        <div style="margin-top:6px">Bộ <b class="jp">${h.bo[1]}</b> ${esc(h.bo[2])} <span class="muted">(bộ số ${h.bo[0]})</span> · ${h.net} nét${h.jlpt ? ' · JLPT N' + h.jlpt : ''}</div></div>
+    </div>
+    ${BP[c] ? `<div class="hanbox"><b>Cấu tạo chữ</b> <span class="muted">– ghép nghĩa các bộ phận để tự tạo câu chuyện ghi nhớ</span>
+      <div style="margin-top:4px"><span class="jp" style="font-size:22px">${c}</span> = ${BP[c].map(([x, n]) => `<span class="bp"><b class="jp">${x}</b> ${esc(n || 'nét hình ' + x)}</span>`).join(' + ')}</div></div>` : ''}
+    ${doc ? `<div class="hanbox"><b>Trong từ này đọc là:</b> <span class="jp" style="font-size:20px;color:var(--main)">${esc(doc)}</span></div>` : ''}
+    <div class="hanbox"><b>Âm Kun</b> <span class="muted">– cách đọc thuần Nhật, thường dùng khi chữ đứng một mình hoặc đi kèm hiragana</span>
+      <div class="jp docs">${kun.length ? kun.join('、') : '—'}</div></div>
+    <div class="hanbox"><b>Âm On</b> <span class="muted">– cách đọc gốc Hán, thường dùng khi ghép với chữ Hán khác</span>
+      <div class="jp docs">${h.on.length ? h.on.map(o => `${o} <span class="muted">(${hira(o)})</span>`).join('、') : '—'}</div></div>
+    <div class="hanbox"><b>Nghĩa gốc</b> <span class="muted">(tiếng Anh)</span><div>${esc(h.en.join('; '))}</div></div>
+    ${vd.length ? `<div class="hanbox"><b>Từ khác trong giáo trình có chữ ${c}</b>${vd.map(w => `<div class="vdtu"><span class="jp" style="font-size:18px">${chuRuby(w)}</span> <span class="muted">→ đọc <b class="jp">${esc(docTrongTu(c, w.id))}</b></span><div>${esc(w.nghia)}</div></div>`).join('')}</div>` : ''}
+    <p class="muted" style="font-size:11px">Nguồn: KANJIDIC2 – EDRDG.</p>
+    <button class="bigbtn" onclick="this.closest('.sheet-nen').remove()">Đóng</button></div>`;
+  document.body.appendChild(sheet);
+}
+function moNghia() { veThe(); }
+function chamThe(k) {
+  const w = THE.ds[THE.i];
+  ghiNho(w.id, k);
+  if (k === 0) THE.ds.push(w); // từ chưa nhớ sẽ gặp lại cuối lượt
+  THE.i++; veThe();
+}
+function doiSao(id) { if (S.sao[id]) delete S.sao[id]; else S.sao[id] = 1; luu(); if (THE) veThe(); }
+function ve_lai() { const so = THE.ds[0].bai, motBai = THE.ds.every(w => w.bai === so); THE = null; motBai ? manBai(so) : manChinh(); }
+function xongThe() {
+  app.innerHTML = `<div class="card done pop"><div class="big">🎉</div><h2>Xong lượt “${esc(THE.ten)}”!</h2>
+    <p>Bạn vừa xem ${THE.ds.length} thẻ. Các từ sẽ tự quay lại trong mục <b>Ôn tập</b> đúng lúc sắp quên.</p>
+    <div class="opts"><button class="bigbtn" onclick="batDauKiemTra(THE.ds, 'Kiểm tra lại')">📝 Kiểm tra ngay các từ vừa học</button>
+    <button class="bigbtn alt" onclick="manChinh()">Về trang chính</button></div></div>`;
+}
+document.addEventListener('keydown', e => {
+  if (!THE || !$('.flash') || e.target.tagName === 'INPUT') return;
+  if (e.code === 'Space') { e.preventDefault(); doc(THE.ds[THE.i]); }
+  if (['1', '2', '3'].includes(e.key)) chamThe(+e.key - 1);
+});
+
+// ===== Luyện viết (tô theo chữ mờ) =====
+let VIET = null;
+function vietTuNay() { const w = THE.ds[THE.i]; luyenViet([w], 0, null, true); }
+function luyenViet(ds, i, so, tuThe) {
+  const w = ds[i];
+  VIET = { ds, i, so, tuThe, loai: VIET && VIET.loai || 'chu', mo: true };
+  const vungTren = so ? '' : `<header class="top"><button class="iconbtn" onclick="dungLuyenViet();veThe()">←</button><h1>Tập viết</h1></header>`;
+  const old = so ? app.innerHTML.split('<div id="vietbox">')[0] : '';
+  app.innerHTML = (so ? old : vungTren) + `<div id="vietbox">
+    <div class="card" style="text-align:center;margin-bottom:10px">
+      <div class="jp" style="font-size:26px;font-weight:700">${esc(w.chu)}</div>
+      <div class="muted">${coKana(w) ? '<span class="jp">' + esc(w.kana) + '</span> · ' : ''}${esc(w.romaji)} · ${esc(w.nghia)}</div>
+      <div class="tools" style="margin-top:10px">
+        ${coKana(w) ? `<button class="pill ${VIET.loai === 'chu' ? 'on' : ''}" onclick="VIET.loai='chu';luyenViet(VIET.ds,VIET.i,VIET.so,VIET.tuThe)">Viết chữ Kanji</button>
+        <button class="pill ${VIET.loai === 'kana' ? 'on' : ''}" onclick="VIET.loai='kana';luyenViet(VIET.ds,VIET.i,VIET.so,VIET.tuThe)">Viết Kana</button>` : ''}
+        <button class="pill on" id="nutMo" onclick="VIET.mo=!VIET.mo;$('.ghost').style.opacity=VIET.mo?.13:0;this.classList.toggle('on')">Chữ mờ</button>
+        <button class="pill" onclick="doc(VIET.ds[VIET.i])">🔊</button>
+      </div></div>
+    <div class="writebox"><div class="grid"></div><div class="ghost"></div><canvas></canvas></div>
+    <div class="nav"><button class="bigbtn alt" ${i ? '' : 'disabled'} onclick="luyenViet(VIET.ds,VIET.i-1,VIET.so)">←</button>
+      <button class="bigbtn alt" onclick="xoaNet()">🧽 Xóa</button>
+      ${ds.length > 1 ? `<span class="count">${i + 1}/${ds.length}</span>` : ''}
+      <button class="bigbtn" ${i < ds.length - 1 ? '' : 'disabled'} onclick="luyenViet(VIET.ds,VIET.i+1,VIET.so)">→</button></div>
+    <p class="muted" style="text-align:center">Dùng ngón tay hoặc chuột tô theo chữ mờ. Tắt “Chữ mờ” để thử tự viết theo trí nhớ.</p></div>`;
+  const text = VIET.loai === 'kana' && coKana(w) ? w.kana : w.chu;
+  const g = $('.ghost'), box = $('.writebox');
+  g.textContent = text;
+  const cw = box.clientWidth, ch = box.clientHeight;
+  g.style.fontSize = Math.min(ch * 0.78, cw * 0.9 / Math.max(1, [...text].length)) + 'px';
+  const cv = box.querySelector('canvas'), dpr = window.devicePixelRatio || 1;
+  cv.width = cw * dpr; cv.height = ch * dpr;
+  const ctx = cv.getContext('2d'); ctx.scale(dpr, dpr);
+  ctx.lineCap = ctx.lineJoin = 'round'; ctx.strokeStyle = '#3b82f6';
+  ctx.lineWidth = Math.max(5, Math.min(ch * 0.78, cw * 0.9 / Math.max(1, [...text].length)) / 14);
+  let ve = false, lx, ly;
+  const pt = e => { const r = cv.getBoundingClientRect(); return [e.clientX - r.left, e.clientY - r.top]; };
+  cv.onpointerdown = e => { ve = true; cv.setPointerCapture(e.pointerId); [lx, ly] = pt(e); ctx.beginPath(); ctx.arc(lx, ly, ctx.lineWidth / 2, 0, 7); ctx.fillStyle = ctx.strokeStyle; ctx.fill(); };
+  cv.onpointermove = e => { if (!ve) return; const [x, y] = pt(e); ctx.beginPath(); ctx.moveTo(lx, ly); ctx.lineTo(x, y); ctx.stroke(); lx = x; ly = y; };
+  cv.onpointerup = cv.onpointercancel = () => ve = false;
+  VIET.ctx = ctx; VIET.cw = cw; VIET.ch = ch;
+}
+function xoaNet() { VIET && VIET.ctx.clearRect(0, 0, VIET.cw, VIET.ch); }
+function dungLuyenViet() { VIET = VIET && { loai: VIET.loai }; }
+
+// ===== Kiểm tra (trắc nghiệm, nghe, gõ romaji) =====
+let KT = null;
+const chuanRomaji = s => s.toLowerCase().replace(/\(.*?\)/g, '').replace(/[^a-z]/g, '').replace(/ou/g, 'oo').replace(/ei/g, 'ee').replace(/nn/g, 'n');
+const goDuoc = w => !/[～~▲/]/.test(w.romaji) && w.romaji.length <= 22;
+function batDauKiemTra(ds, ten, so) {
+  if (ds.length < 1) return toast('Chưa có từ để kiểm tra.');
+  const chon = tron(ds).slice(0, 10);
+  const pool = ds.length >= 4 ? ds : ALL;
+  KT = { ds: chon, pool, i: 0, dung: 0, sai: [], ten, so, xong: false };
+  if (!so) app.innerHTML = `<header class="top"><button class="iconbtn" onclick="manChinh()">←</button><h1>${esc(ten)}</h1></header><div id="ktbox"></div>`;
+  else app.innerHTML += '<div id="ktbox"></div>';
+  cauHoi();
+}
+function cauHoi() {
+  const box = $('#ktbox'); if (!box) return;
+  const { ds, i } = KT, w = ds[i];
+  if (!w) return ketQuaKT();
+  const kieu = ['jv', 'vj', 'nghe', 'go'].filter(k => k !== 'go' || goDuoc(w))[Math.random() * (goDuoc(w) ? 4 : 3) | 0];
+  KT.kieu = kieu; KT.xong = false;
+  const nhieu = tron(KT.pool.filter(x => x.nghia !== w.nghia && x.chu !== w.chu)).slice(0, 3);
+  const opts = tron([w, ...nhieu]);
+  KT.opts = opts;
+  let dau = '', than = '';
+  if (kieu === 'jv') { dau = 'Từ này nghĩa là gì?'; than = `<div class="prompt jp">${esc(w.chu)}</div>${coKana(w) && S.cai.kana ? `<div class="kana jp">${esc(w.kana)}</div>` : ''}`; }
+  if (kieu === 'vj') { dau = 'Chọn từ tiếng Nhật đúng:'; than = `<div class="prompt vi">${esc(w.nghia)}</div>`; }
+  if (kieu === 'nghe') { dau = 'Nghe và chọn nghĩa đúng:'; than = `<div class="prompt"><button class="bigbtn" style="width:auto;padding:14px 28px" onclick="doc(KT.ds[KT.i])">🔊 Nghe lại</button></div>`; }
+  if (kieu === 'go') { dau = 'Gõ cách đọc bằng romaji:'; than = `<div class="prompt jp">${esc(w.chu)}</div><div class="muted">${esc(w.nghia)}</div>`; }
+  box.innerHTML = `<div class="progress"><i style="width:${i / ds.length * 100}%"></i></div>
+    <div class="card q pop"><div class="ask">Câu ${i + 1}/${ds.length} · ${dau}</div>${than}
+    ${kieu === 'go' ? `<input class="typein" id="goin" autocomplete="off" autocapitalize="off" placeholder="vd: arigatoo" onkeydown="if(event.key==='Enter')kiemGo()">
+      <div class="row" style="margin-top:10px"><button class="bigbtn alt" onclick="kiemGo(true)">Không biết</button><button class="bigbtn" onclick="kiemGo()">Kiểm tra</button></div>`
+      : `<div class="opts">${opts.map((o, k) => `<button class="opt ${kieu === 'vj' ? 'jp' : ''}" onclick="chonDA(${k})">${esc(kieu === 'vj' ? o.chu : o.nghia)}</button>`).join('')}</div>`}
+    <div class="feedback" id="fb"></div><div id="tiep"></div></div>`;
+  if (kieu === 'nghe') setTimeout(() => doc(w), 250);
+  if (kieu === 'go') setTimeout(() => { const o = $('#goin'); if (o) o.focus(); }, 50);
+}
+function traLoi(dung) {
+  const w = KT.ds[KT.i]; KT.xong = true;
+  ghiNho(w.id, dung ? 2 : 0);
+  if (dung) KT.dung++; else KT.sai.push(w);
+  rung(dung ? 30 : [60, 40, 60]);
+  $('#fb').innerHTML = (dung ? '<span style="color:var(--green)">✅ Đúng rồi!</span>' : '<span style="color:var(--bad)">❌ Chưa đúng.</span>') +
+    `<div class="muted jp" style="margin-top:6px">${esc(w.chu)} ${coKana(w) ? '（' + esc(w.kana) + '）' : ''} · ${esc(w.romaji)} · ${esc(w.nghia)}</div>`;
+  $('#tiep').innerHTML = `<button class="bigbtn" style="margin-top:12px" id="nutTiep" onclick="KT.i++;cauHoi()">Tiếp →</button>`;
+  doc(w); $('#nutTiep').focus();
+}
+function chonDA(k) {
+  if (KT.xong) return;
+  const w = KT.ds[KT.i], btns = document.querySelectorAll('.opt');
+  KT.opts.forEach((o, j) => { if (o === w) btns[j].classList.add('ok'); });
+  if (KT.opts[k] !== w) btns[k].classList.add('bad');
+  traLoi(KT.opts[k] === w);
+}
+function kiemGo(boQua) {
+  if (KT.xong) return;
+  const w = KT.ds[KT.i], v = chuanRomaji($('#goin').value);
+  traLoi(!boQua && v && w.romaji.split('/').some(r => chuanRomaji(r) === v));
+}
+function ketQuaKT() {
+  const { dung, ds, sai } = KT, pt = Math.round(dung / ds.length * 100);
+  $('#ktbox').innerHTML = `<div class="card done pop"><div class="big">${pt >= 80 ? '🏆' : pt >= 50 ? '👍' : '💪'}</div>
+    <h2>Đúng ${dung}/${ds.length} câu (${pt}%)</h2>
+    ${sai.length ? `<p>Các từ cần ôn thêm:</p><div class="list" style="text-align:left">${sai.map(dongTu).join('')}</div>` : '<p>Tuyệt vời, không sai câu nào!</p>'}
+    <div class="opts" style="margin-top:12px">
+      ${sai.length ? `<button class="bigbtn" onclick="batDauThe(KT.sai.slice(), 'Ôn lại câu sai', true)">🔁 Học lại các từ sai</button>` : ''}
+      <button class="bigbtn alt" onclick="${KT.so ? `manBai(${KT.so},'kt')` : `batDauKiemTra(KT.pool, '${esc(KT.ten)}')`}">Làm bài kiểm tra khác</button>
+      <button class="bigbtn alt" onclick="manChinh()">Về trang chính</button></div></div>`;
+}
+
+// ===== Cài đặt =====
+function manCaiDat() {
+  THE = null; datTab('cai');
+  const sw = (k, t, m) => `<div class="setting"><div>${t}<small>${m}</small></div><button class="switch ${S.cai[k] ? 'on' : ''}" onclick="S.cai['${k}']=!S.cai['${k}'];luu();manCaiDat()"></button></div>`;
+  app.innerHTML = `<header class="top"><button class="iconbtn" onclick="manChinh()">←</button><h1>⚙️ Cài đặt</h1></header>
+    <div class="card">
+      ${sw('romaji', 'Hiện Romaji', 'Chữ Latinh giúp đọc từ tiếng Nhật')}
+      ${sw('kana', 'Hiện Kana trên Kanji', 'Cách đọc hiragana/katakana phía trên chữ Hán')}
+      ${sw('tudoc', 'Tự đọc khi sang thẻ mới', 'Phát âm ngay mỗi khi hiện từ')}
+      <div class="setting"><div>Tốc độ đọc<small>${S.cai.tocdo}x</small></div><input type="range" min="0.5" max="1.2" step="0.05" value="${S.cai.tocdo}" onchange="S.cai.tocdo=+this.value;luu();manCaiDat()"></div>
+      <div class="setting"><div>Mục tiêu mỗi ngày<small>${S.cai.muctieu} lượt học</small></div><input type="range" min="5" max="100" step="5" value="${S.cai.muctieu}" onchange="S.cai.muctieu=+this.value;luu();manCaiDat()"></div>
+      <div class="setting"><div>Giọng đọc tiếng Nhật<small>${giongNhat ? 'Đã có: ' + esc(giongNhat.name) : 'Chưa thấy. Windows: Cài đặt → Thời gian & ngôn ngữ → Giọng nói → Thêm giọng → 日本語. Điện thoại thường có sẵn.'}</small></div>
+        <button class="pill" onclick="doc({kana:'こんにちは'})">Thử</button></div>
+    </div>
+    <h2>Dữ liệu học</h2>
+    <div class="card">
+      <p class="muted" style="margin-top:0">Tiến độ được lưu ngay trên máy này. Có thể sao lưu ra tệp để chuyển sang máy khác.</p>
+      <div class="row"><button class="bigbtn alt" onclick="saoLuu()">⬇️ Sao lưu</button>
+      <button class="bigbtn alt" onclick="$('#nap').click()">⬆️ Khôi phục</button></div>
+      <input type="file" id="nap" accept=".json" class="hidden" onchange="khoiPhuc(this.files[0])">
+      <button class="bigbtn alt" style="margin-top:10px;color:var(--bad)" onclick="if(confirm('Xóa toàn bộ tiến độ học?')){localStorage.removeItem(KEY);location.reload()}">Xóa tiến độ, học lại từ đầu</button>
+    </div>`;
+}
+function saoLuu() {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(S)], { type: 'application/json' }));
+  a.download = 'tien-do-tu-vung-' + ngayNay() + '.json'; a.click();
+}
+function khoiPhuc(f) {
+  if (!f) return;
+  f.text().then(t => { const d = JSON.parse(t); if (!d.tu) throw 0; S = { ...S, ...d }; luu(); toast('Đã khôi phục tiến độ.'); manChinh(); }).catch(() => toast('Tệp không hợp lệ.'));
+}
+
+// ===== Giao diện điện thoại: thanh dưới, vuốt thẻ, rung =====
+function theBai(b) {
+  const ds = tuCuaBai(b.so), d = ds.filter(w => daHoc(w.id)).length, t = ds.filter(w => muc(w.id) >= 3).length;
+  return `<button class="card lesson" onclick="manBai(${b.so})"><div class="num" style="font-size:24px">${hinhBai(b.so)}</div>
+    <div style="flex:1"><div class="sub" style="color:var(--main);font-weight:600">Bài ${b.so}${d === ds.length ? ' ✅' : ''}</div><div class="t" style="font-weight:600">${esc(viBai(b.so))}</div><div class="sub jp">${esc(b.ten)}</div><div class="sub">${ds.length} từ · đã học ${d} · thuộc ${t}</div>
+    <div class="bar"><i style="width:${d / ds.length * 100}%"></i></div></div></button>`;
+}
+function datTab(k) {
+  document.querySelectorAll('#tabbar button').forEach(b => b.classList.toggle('on', b.dataset.k === k));
+  const n = canOn().length; $('#soOn').textContent = n ? (n > 99 ? '99+' : n) : '';
+}
+const rung = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} };
+function manDsBai() {
+  dungLuyenViet(); THE = null;
+  const tiep = BAI.find(b => tuCuaBai(b.so).some(w => !daHoc(w.id)));
+  app.innerHTML = `<header class="top"><h1>📚 Các bài học</h1></header>
+    ${tiep ? `<button class="bigbtn" style="margin-bottom:14px" onclick="manBai(${tiep.so})">▶ Học tiếp: Bài ${tiep.so} – ${esc(viBai(tiep.so))}</button>` : ''}
+    <div class="lessons">${BAI.map(theBai).join('')}</div>`;
+  datTab('bai'); window.scrollTo(0, 0);
+}
+// Vuốt thẻ: chưa lật thì vuốt trái để lật, vuốt phải để quay lại; đã lật thì vuốt phải = Đã nhớ, vuốt trái = Chưa nhớ.
+let vuot = null;
+document.addEventListener('pointerdown', e => { const f = e.target.closest('.flash'); if (f && !e.target.closest('button')) vuot = { x: e.clientX, y: e.clientY, f }; });
+document.addEventListener('pointermove', e => { if (vuot) vuot.f.style.transform = `translateX(${(e.clientX - vuot.x) * .5}px) rotate(${(e.clientX - vuot.x) * .02}deg)`; });
+document.addEventListener('pointerup', e => {
+  if (!vuot) return;
+  const dx = e.clientX - vuot.x, dy = e.clientY - vuot.y; vuot.f.style.transform = ''; vuot = null;
+  if (!THE) return;
+  if (Math.abs(dx) < 60 || Math.abs(dy) > Math.abs(dx)) return;
+  chamThe(dx > 0 ? 2 : 0);
+});
+
+// ===== Trò chơi ghép 3 cột: Tiếng Nhật – Romaji – Tiếng Việt =====
+let GHEP = null;
+const COT = [['chu', 'Tiếng Nhật', 'jp'], ['romaji', 'Romaji', 'ro'], ['nghia', 'Tiếng Việt', '']];
+function troGhep(ds) {
+  const chon = tron(ds.filter(w => w.nghia.length < 40 && w.romaji.length < 24)).slice(0, 6);
+  GHEP = { ds, con: chon.length, sai: 0, bd: Date.now(), dang: {} };
+  // Mỗi cột trộn thứ tự riêng
+  const cot = COT.map(() => tron(chon));
+  $('#ghepbox').innerHTML = `<p class="muted" style="text-align:center;margin-top:0">Chọn ở mỗi cột một ô cùng một từ: chữ Nhật, cách đọc Romaji và nghĩa tiếng Việt.</p>
+    <div class="ghep">${COT.map(c => `<div class="cot-tieu">${c[1]}</div>`).join('')}
+    ${chon.map((_, k) => COT.map(([f, , cls], c) => { const w = cot[c][k]; return `<button class="${cls}" data-id="${w.id}" data-c="${c}" onclick="chamGhep(this)">${esc(w[f])}</button>`; }).join('')).join('')}</div>`;
+}
+function chamGhep(b) {
+  const c = b.dataset.c, dang = GHEP.dang;
+  if (c !== '2') doc(BY_ID[b.dataset.id]);
+  if (dang[c] === b) { b.classList.remove('chon'); delete dang[c]; return; }
+  if (dang[c]) dang[c].classList.remove('chon');
+  dang[c] = b; b.classList.add('chon');
+  const ds = Object.values(dang);
+  if (ds.some(x => x.dataset.id !== b.dataset.id)) {
+    GHEP.sai++; rung([40, 40, 40]);
+    ds.forEach(x => { x.classList.remove('chon'); x.classList.add('sai'); setTimeout(() => x.classList.remove('sai'), 400); });
+    GHEP.dang = {};
+    return;
+  }
+  if (ds.length < 3) return;
+  ds.forEach(x => { x.classList.remove('chon'); x.classList.add('xong'); });
+  GHEP.dang = {}; rung(30); ghiNho(b.dataset.id, 2);
+  if (--GHEP.con === 0) {
+    const giay = Math.round((Date.now() - GHEP.bd) / 1000);
+    $('#ghepbox').innerHTML = `<div class="card done pop"><div class="big">🧩</div><h2>Hoàn thành trong ${giay} giây!</h2><p>Ghép sai ${GHEP.sai} lần.</p>
+      <button class="bigbtn" onclick="troGhep(GHEP.ds)">Chơi ván mới</button></div>`;
+  }
+}
+
+manChinh();
+if ('serviceWorker' in navigator && location.protocol === 'https:') navigator.serviceWorker.register('sw.js');
+</script>
+</body>
+</html>

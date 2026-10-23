@@ -1,0 +1,16 @@
+{
+  "name": "Từ Vựng Nhật Nhập Môn",
+  "short_name": "Từ Vựng Nhật",
+  "description": "Học 1.283 từ vựng tiếng Nhật nhập môn theo 18 bài: thẻ học, luyện viết, ôn tập, kiểm tra",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#eef5ff",
+  "theme_color": "#3b82f6",
+  "lang": "vi",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
