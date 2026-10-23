@@ -355,7 +355,7 @@ function manBai(so, tab = 'hoc') {
 let THE = null;
 function batDauThe(ds, ten, choCham) {
   if (!ds.length) return toast('Không có từ nào.');
-  THE = { ds, i: 0, ten, mo: false };
+  THE = { ds: ds.slice(), goc: ds.length, i: 0, ten, lai: {} };
   veThe();
 }
 function veThe() {
@@ -364,7 +364,7 @@ function veThe() {
   if (!w) return xongThe();
   const coFuri = S.cai.kana && FURI[w.id];
   app.innerHTML = `<header class="top"><button class="iconbtn" onclick="ve_lai()">←</button><h1>${esc(ten)}</h1></header>
-    <div class="progress"><i style="width:${i / ds.length * 100}%"></i></div>
+    <div class="progress"><i style="width:${Math.min(1, i / THE.goc) * 100}%"></i></div>
     <div class="card flash pop">
       <div class="sec">Bài ${w.bai}${w.muc ? ' · <span class="jp">' + esc(w.muc) + '</span>' + (viMuc(w.muc) ? ' (' + esc(viMuc(w.muc)) + ')' : '') : ''}</div>
       <button class="star" onclick="doiSao('${w.id}')">${S.sao[w.id] ? '⭐' : '☆'}</button>
@@ -388,7 +388,7 @@ function veThe() {
       <button class="mid" onclick="chamThe(1)">Hơi nhớ</button>
       <button class="yes" onclick="chamThe(2)">Đã nhớ</button></div>
     <div class="nav"><button class="bigbtn alt" ${i ? '' : 'disabled'} onclick="THE.i--;veThe()">← Từ trước</button>
-      <span class="count">${i + 1} / ${ds.length}</span></div>
+      <span class="count">${i < THE.goc ? `${i + 1} / ${THE.goc}` : `Ôn lại ${i - THE.goc + 1} / ${ds.length - THE.goc}`}</span></div>
     <p class="muted" style="text-align:center">👉 Vuốt phải = Đã nhớ · 👈 Vuốt trái = Chưa nhớ</p>`;
   if (S.cai.tudoc) doc(w);
 }
@@ -459,15 +459,16 @@ function moNghia() { veThe(); }
 function chamThe(k) {
   const w = THE.ds[THE.i];
   ghiNho(w.id, k);
-  if (k === 0) THE.ds.push(w); // từ chưa nhớ sẽ gặp lại cuối lượt
+  // từ chưa nhớ gặp lại một lần ở cuối lượt (không lặp mãi)
+  if (k === 0 && !THE.lai[w.id]) { THE.lai[w.id] = 1; THE.ds.push(w); }
   THE.i++; veThe();
 }
 function doiSao(id) { if (S.sao[id]) delete S.sao[id]; else S.sao[id] = 1; luu(); if (THE) veThe(); }
 function ve_lai() { const so = THE.ds[0].bai, motBai = THE.ds.every(w => w.bai === so); THE = null; motBai ? manBai(so) : manChinh(); }
 function xongThe() {
   app.innerHTML = `<div class="card done pop"><div class="big">🎉</div><h2>Xong lượt “${esc(THE.ten)}”!</h2>
-    <p>Bạn vừa xem ${THE.ds.length} thẻ. Các từ sẽ tự quay lại trong mục <b>Ôn tập</b> đúng lúc sắp quên.</p>
-    <div class="opts"><button class="bigbtn" onclick="batDauKiemTra(THE.ds, 'Kiểm tra lại')">📝 Kiểm tra ngay các từ vừa học</button>
+    <p>Bạn vừa học ${THE.goc} từ. Các từ sẽ tự quay lại trong mục <b>Ôn tập</b> đúng lúc sắp quên.</p>
+    <div class="opts"><button class="bigbtn" onclick="batDauKiemTra(THE.ds.slice(0, THE.goc), 'Kiểm tra lại')">📝 Kiểm tra ngay các từ vừa học</button>
     <button class="bigbtn alt" onclick="manChinh()">Về trang chính</button></div></div>`;
 }
 document.addEventListener('keydown', e => {
