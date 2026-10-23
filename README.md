@@ -8,8 +8,10 @@
 - Nghe phát âm từng từ (giọng giáo trình hoặc giọng đọc chuẩn)
 - Thông tin chữ Hán: âm Hán Việt, bộ thủ, âm On/Kun, cấu tạo chữ
 - Luyện viết, ghép 3 cột (Nhật – Romaji – Việt), kiểm tra, ôn tập ngắt quãng
+- Hoạt hình thứ tự nét viết, biểu đồ tiến độ, huy hiệu, nhắc học hằng ngày
 - Cài lên điện thoại và dùng được khi không có mạng
 
 ## Nguồn dữ liệu
 - Từ vựng và audio: giáo trình *いろどり 生活の日本語 入門* – ©The Japan Foundation
 - Chữ Hán: KANJIDIC2 và KRADFILE – [EDRDG](https://www.edrdg.org/), giấy phép CC BY-SA 4.0
+- Nét viết: [KanjiVG](https://kanjivg.tagaini.net/) – Ulrich Apel, giấy phép CC BY-SA 3.0

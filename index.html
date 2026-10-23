@@ -96,6 +96,30 @@
   .meo-tieu { font-weight: 800; color: #b7791f; }
   @media (prefers-color-scheme: dark) { .meo { background: #3a3220; } .meo-tieu { color: #f0c36d; } }
   .bp { display: inline-block; background: var(--panel); border-radius: 10px; padding: 2px 8px; margin: 2px 0; }
+  .netbox { width: 150px; max-width: 100%; margin: 6px auto 0; }
+  .netsvg { width: 100%; aspect-ratio: 1; background: var(--panel); border-radius: 12px; }
+  .netsvg path { fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .netsvg .luoi { stroke: var(--line); stroke-width: .6; stroke-dasharray: 3 3; }
+  .netsvg .mo { stroke: var(--line); stroke-width: 3; }
+  .netsvg .net { stroke: var(--ink); stroke-width: 3.5; }
+  .netsvg .so { font-size: 8px; fill: var(--bad); font-weight: 700; font-family: sans-serif; }
+  .netsvg .so.xong { fill: var(--muted); }
+  .netluoi { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; text-align: center; }
+  .bieudo { display: block; width: 100%; height: 180px; margin-top: 8px; }
+  .bieudo .c-hoc, .chuthich .c-hoc { fill: var(--main-soft); background: var(--main-soft); }
+  .bieudo .c-dung, .chuthich .c-dung { fill: var(--main); background: var(--main); }
+  .bieudo .c-nhan { font-size: 9px; fill: var(--muted); text-anchor: middle; }
+  .chuthich { display: flex; gap: 14px; font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .chuthich i { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 4px; vertical-align: -1px; }
+  .baibar { display: grid; grid-template-columns: 78px 1fr 52px; align-items: center; gap: 8px; padding: 6px 0; font-size: 13px; cursor: pointer; }
+  .baibar .bar { display: flex; margin: 0; height: 10px; border-radius: 5px; }
+  .baibar .bar i.dahoc { background: var(--main-soft); }
+  .baibar small { text-align: right; color: var(--muted); }
+  .huyhieu { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+  .hh { background: var(--panel); border-radius: 16px; box-shadow: var(--shadow); padding: 12px 8px; text-align: center; font-size: 13px; opacity: .45; filter: grayscale(1); }
+  .hh.co { opacity: 1; filter: none; border: 2px solid var(--gold); }
+  .hh-icon { font-size: 30px; }
+  .hh small { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
   .vdtu { border-top: 1px solid var(--line); padding-top: 6px; margin-top: 6px; }
   .romaji { font-size: 18px; color: var(--blue); min-height: 26px; }
   .accent { font-size: 13px; color: var(--muted); }
@@ -161,7 +185,7 @@
   <button data-k="home" onclick="manChinh()"><span>🏠</span>Trang chủ</button>
   <button data-k="bai" onclick="manDsBai()"><span>📚</span>Bài học</button>
   <button data-k="on" onclick="canOn().length ? batDauThe(canOn(), 'Ôn tập hôm nay') : toast('Chưa có từ cần ôn. Hãy học từ mới trước nhé!')"><span>🔁</span>Ôn tập<i id="soOn"></i></button>
-  <button data-k="sao" onclick="Object.keys(S.sao).length ? batDauThe(ALL.filter(w=>S.sao[w.id]), 'Từ khó ⭐') : toast('Chạm ☆ trên thẻ để đánh dấu từ khó.')"><span>⭐</span>Từ khó</button>
+  <button data-k="tiendo" onclick="manTienDo()"><span>📊</span>Tiến độ</button>
   <button data-k="cai" onclick="manCaiDat()"><span>⚙️</span>Cài đặt</button>
 </nav>
 <script src="tu-vung.js"></script>
@@ -177,7 +201,7 @@ const BY_ID = Object.fromEntries(ALL.map(w => [w.id, w]));
 const DAY = 86400000;
 const KHOANG = [0, 1, 3, 7, 14, 30, 60]; // số ngày chờ trước lần ôn tiếp theo, theo mức nhớ
 
-let S = { tu: {}, sao: {}, chuoi: { ngay: '', so: 0 }, homnay: { ngay: '', so: 0 }, cai: { romaji: true, kana: true, tudoc: false, tocdo: 0.85, muctieu: 20 } };
+let S = { tu: {}, sao: {}, chuoi: { ngay: '', so: 0 }, homnay: { ngay: '', so: 0 }, ls: {}, tt: {}, hh: {}, cai: { romaji: true, kana: true, tudoc: false, tocdo: 0.85, muctieu: 20, gionhac: '20:00' } };
 try { const d = JSON.parse(localStorage.getItem(KEY)); if (d) S = { ...S, ...d, cai: { ...S.cai, ...d.cai } }; } catch (e) {}
 const luu = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
 const ngayNay = () => new Date().toLocaleDateString('sv');
@@ -189,8 +213,12 @@ function ghiNho(id, ketQua) { // ketQua: 0 quên, 1 tạm, 2 nhớ
   const t = S.tu[id] || { m: 0, h: 0 };
   t.m = ketQua === 0 ? 1 : ketQua === 1 ? Math.max(1, t.m) : Math.min(t.m + 1, KHOANG.length - 1);
   t.h = Date.now() + (ketQua === 0 ? 10 * 60000 : KHOANG[t.m] * DAY - 3600000);
+  if (ketQua === 0) t.sai = (t.sai || 0) + 1;
   S.tu[id] = t;
   const n = ngayNay();
+  // lịch sử theo ngày cho biểu đồ tiến độ
+  const ls = S.ls[n] || (S.ls[n] = { h: 0, d: 0, s: 0 });
+  ls.h++; if (ketQua === 2) ls.d++; if (ketQua === 0) ls.s++;
   if (S.homnay.ngay !== n) S.homnay = { ngay: n, so: 0 };
   S.homnay.so++;
   if (S.chuoi.ngay !== n) {
@@ -198,6 +226,7 @@ function ghiNho(id, ketQua) { // ketQua: 0 quên, 1 tạm, 2 nhớ
     S.chuoi = { ngay: n, so: S.chuoi.ngay === homqua ? S.chuoi.so + 1 : 1 };
   }
   luu();
+  setTimeout(kiemHuyHieu, 300);
 }
 
 // ===== Phát âm (giọng đọc có sẵn trong máy, miễn phí) =====
@@ -264,6 +293,7 @@ function manChinh() {
       <button class="bigbtn alt" ${due ? '' : 'disabled'} onclick="batDauThe(canOn(), 'Ôn tập hôm nay', true)">🔁 Ôn tập (${due})</button>
       <button class="bigbtn alt" ${hoc >= 4 ? '' : 'disabled'} onclick="batDauKiemTra(ALL.filter(w=>daHoc(w.id)), 'Kiểm tra tổng hợp')">📝 Kiểm tra</button>
     </div>
+    ${Object.keys(S.sao).length ? `<button class="bigbtn alt" style="margin-top:10px" onclick="batDauThe(ALL.filter(w=>S.sao[w.id]), 'Từ khó ⭐')">⭐ Ôn từ khó đã đánh dấu (${Object.keys(S.sao).length})</button>` : ''}
     <h2>Tìm từ</h2>
     <input class="search" id="tim" placeholder="Gõ tiếng Việt, romaji hoặc chữ Nhật…" oninput="timTu(this.value)">
     <div id="ketqua"></div>
@@ -416,11 +446,14 @@ function xemHan(c, id) {
       <div class="jp docs">${kun.length ? kun.join('、') : '—'}</div></div>
     <div class="hanbox"><b>Âm On</b> <span class="muted">– cách đọc gốc Hán, thường dùng khi ghép với chữ Hán khác</span>
       <div class="jp docs">${h.on.length ? h.on.map(o => `${o} <span class="muted">(${hira(o)})</span>`).join('、') : '—'}</div></div>
+    <div class="hanbox"><b>Thứ tự nét viết</b> <span class="muted">– số đỏ là nét đang viết</span><div class="netbox" data-c="${c}"></div>
+      <button class="pill" style="margin-top:6px" onclick="veNet(this.previousElementSibling)">▶ Xem lại</button></div>
     <div class="hanbox"><b>Nghĩa gốc</b> <span class="muted">(tiếng Anh)</span><div>${esc(h.en.join('; '))}</div></div>
     ${vd.length ? `<div class="hanbox"><b>Từ khác trong giáo trình có chữ ${c}</b>${vd.map(w => `<div class="vdtu"><span class="jp" style="font-size:18px">${chuRuby(w)}</span> <span class="muted">→ đọc <b class="jp">${esc(docTrongTu(c, w.id))}</b></span><div>${esc(w.nghia)}</div></div>`).join('')}</div>` : ''}
     <p class="muted" style="font-size:11px">Nguồn: KANJIDIC2 – EDRDG.</p>
     <button class="bigbtn" onclick="this.closest('.sheet-nen').remove()">Đóng</button></div>`;
   document.body.appendChild(sheet);
+  veNet(sheet.querySelector('.netbox'));
 }
 function moNghia() { veThe(); }
 function chamThe(k) {
@@ -464,6 +497,7 @@ function luyenViet(ds, i, so, tuThe) {
     <div class="writebox"><div class="grid"></div><div class="ghost"></div><canvas></canvas></div>
     <div class="nav"><button class="bigbtn alt" ${i ? '' : 'disabled'} onclick="luyenViet(VIET.ds,VIET.i-1,VIET.so)">←</button>
       <button class="bigbtn alt" onclick="xoaNet()">🧽 Xóa</button>
+      <button class="bigbtn alt" onclick="xemNetTu(VIET.ds[VIET.i], VIET.loai)">▶ Nét</button>
       ${ds.length > 1 ? `<span class="count">${i + 1}/${ds.length}</span>` : ''}
       <button class="bigbtn" ${i < ds.length - 1 ? '' : 'disabled'} onclick="luyenViet(VIET.ds,VIET.i+1,VIET.so)">→</button></div>
     <p class="muted" style="text-align:center">Dùng ngón tay hoặc chuột tô theo chữ mờ. Tắt “Chữ mờ” để thử tự viết theo trí nhớ.</p></div>`;
@@ -547,6 +581,8 @@ function kiemGo(boQua) {
 }
 function ketQuaKT() {
   const { dung, ds, sai } = KT, pt = Math.round(dung / ds.length * 100);
+  S.tt.kt = (S.tt.kt || 0) + 1; if (pt === 100 && ds.length >= 10) S.tt.ktDu = (S.tt.ktDu || 0) + 1;
+  luu(); kiemHuyHieu();
   $('#ktbox').innerHTML = `<div class="card done pop"><div class="big">${pt >= 80 ? '🏆' : pt >= 50 ? '👍' : '💪'}</div>
     <h2>Đúng ${dung}/${ds.length} câu (${pt}%)</h2>
     ${sai.length ? `<p>Các từ cần ôn thêm:</p><div class="list" style="text-align:left">${sai.map(dongTu).join('')}</div>` : '<p>Tuyệt vời, không sai câu nào!</p>'}
@@ -566,6 +602,9 @@ function manCaiDat() {
       ${sw('kana', 'Hiện Kana trên Kanji', 'Cách đọc hiragana/katakana phía trên chữ Hán')}
       ${sw('tudoc', 'Tự đọc khi sang thẻ mới', 'Phát âm ngay mỗi khi hiện từ')}
       <div class="setting"><div>Tốc độ đọc<small>${S.cai.tocdo}x</small></div><input type="range" min="0.5" max="1.2" step="0.05" value="${S.cai.tocdo}" onchange="S.cai.tocdo=+this.value;luu();manCaiDat()"></div>
+      <div class="setting"><div>⏰ Nhắc học hằng ngày<small>Thêm lời nhắc lặp lại mỗi ngày vào ứng dụng Lịch của điện thoại</small></div>
+        <input type="time" value="${S.cai.gionhac}" onchange="S.cai.gionhac=this.value;luu()" style="padding:8px;border-radius:10px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink)"></div>
+      <button class="bigbtn" style="margin:6px 0 10px" onclick="taoNhacNho()">📅 Thêm lời nhắc vào Lịch</button>
       <div class="setting"><div>Mục tiêu mỗi ngày<small>${S.cai.muctieu} lượt học</small></div><input type="range" min="5" max="100" step="5" value="${S.cai.muctieu}" onchange="S.cai.muctieu=+this.value;luu();manCaiDat()"></div>
       <div class="setting"><div>Giọng đọc tiếng Nhật<small>${giongNhat ? 'Đã có: ' + esc(giongNhat.name) : 'Chưa thấy. Windows: Cài đặt → Thời gian & ngôn ngữ → Giọng nói → Thêm giọng → 日本語. Điện thoại thường có sẵn.'}</small></div>
         <button class="pill" onclick="doc({kana:'こんにちは'})">Thử</button></div>
@@ -651,9 +690,140 @@ function chamGhep(b) {
   GHEP.dang = {}; rung(30); ghiNho(b.dataset.id, 2);
   if (--GHEP.con === 0) {
     const giay = Math.round((Date.now() - GHEP.bd) / 1000);
+    S.tt.ghep = (S.tt.ghep || 0) + 1; if (giay <= 60 && !GHEP.sai) S.tt.ghepNhanh = 1;
+    luu(); kiemHuyHieu();
     $('#ghepbox').innerHTML = `<div class="card done pop"><div class="big">🧩</div><h2>Hoàn thành trong ${giay} giây!</h2><p>Ghép sai ${GHEP.sai} lần.</p>
       <button class="bigbtn" onclick="troGhep(GHEP.ds)">Chơi ván mới</button></div>`;
   }
+}
+
+// ===== Thứ tự nét viết (dữ liệu KanjiVG, chỉ tải khi cần) =====
+let netSan = null;
+function taiNet() {
+  if (!netSan) netSan = new Promise((ok, loi) => { const s = document.createElement('script'); s.src = 'net-viet.js'; s.onload = ok; s.onerror = loi; document.head.appendChild(s); });
+  return netSan;
+}
+async function veNet(box) {
+  const c = box.dataset.c;
+  box.innerHTML = '<span class="muted">Đang tải…</span>';
+  try { await taiNet(); } catch (e) { box.innerHTML = '<span class="muted">Chưa tải được, hãy kiểm tra mạng.</span>'; return; }
+  const net = NET[c];
+  if (!net) { box.innerHTML = '<span class="muted">Chưa có dữ liệu nét cho chữ này.</span>'; return; }
+  const ns = 'http://www.w3.org/2000/svg';
+  box.innerHTML = `<svg viewBox="0 0 109 109" class="netsvg"><path d="M54.5 0V109M0 54.5H109" class="luoi"/></svg>`;
+  const svg = box.firstChild, ve = box.ve = (box.ve || 0) + 1;
+  // nét mờ để thấy cả chữ, rồi tô từng nét theo thứ tự
+  net.forEach(d => { const p = document.createElementNS(ns, 'path'); p.setAttribute('d', d); p.setAttribute('class', 'mo'); svg.appendChild(p); });
+  for (let k = 0; k < net.length; k++) {
+    const p = document.createElementNS(ns, 'path'); p.setAttribute('d', net[k]); p.setAttribute('class', 'net'); svg.appendChild(p);
+    const dai = p.getTotalLength(); p.style.strokeDasharray = dai; p.style.strokeDashoffset = dai;
+    const m = net[k].match(/M\s*([\d.]+)[ ,]([\d.]+)/), so = document.createElementNS(ns, 'text');
+    so.setAttribute('x', +m[1] - 4); so.setAttribute('y', +m[2] - 2); so.textContent = k + 1; so.setAttribute('class', 'so');
+    svg.appendChild(so);
+    p.getBoundingClientRect();
+    p.style.transition = `stroke-dashoffset ${Math.max(0.35, dai / 120)}s linear`; p.style.strokeDashoffset = 0;
+    await new Promise(r => setTimeout(r, Math.max(350, dai / 120 * 1000) + 150));
+    if (box.ve !== ve) return; // đã bấm xem lại
+    so.classList.add('xong');
+  }
+}
+function xemNetTu(w, loai) {
+  const text = loai === 'kana' && coKana(w) ? w.kana : w.chu;
+  const ds = [...new Set([...text].filter(c => /[ぁ-ゖァ-ヺ一-鿿]/.test(c)))];
+  const sheet = document.createElement('div');
+  sheet.className = 'sheet-nen';
+  sheet.onclick = e => { if (e.target === sheet) sheet.remove(); };
+  sheet.innerHTML = `<div class="sheet pop"><h2 style="margin-top:0">▶ Thứ tự nét: <span class="jp">${esc(text)}</span></h2>
+    <div class="netluoi">${ds.map(c => `<div><div class="netbox" data-c="${c}"></div><button class="pill" onclick="veNet(this.previousElementSibling)">▶ <span class="jp">${c}</span></button></div>`).join('')}</div>
+    <p class="muted" style="font-size:11px">Nguồn nét viết: KanjiVG (CC BY-SA 3.0).</p>
+    <button class="bigbtn" onclick="this.closest('.sheet-nen').remove()">Đóng</button></div>`;
+  document.body.appendChild(sheet);
+  sheet.querySelectorAll('.netbox').forEach(veNet);
+}
+
+// ===== Huy hiệu và thử thách =====
+const thuocBai = so => tuCuaBai(so).every(w => muc(w.id) >= 3);
+const HUY_HIEU = [
+  ['buoc1', '🌱', 'Bước đầu tiên', 'Học từ đầu tiên', () => Object.keys(S.tu).length >= 1],
+  ['tu50', '📗', 'Chăm chỉ', 'Học 50 từ', () => Object.keys(S.tu).length >= 50],
+  ['tu200', '📚', 'Mọt sách', 'Học 200 từ', () => Object.keys(S.tu).length >= 200],
+  ['tu600', '🏯', 'Nửa chặng đường', 'Học 600 từ', () => Object.keys(S.tu).length >= 600],
+  ['tuAll', '👑', 'Bậc thầy nhập môn', 'Học đủ 1.283 từ', () => Object.keys(S.tu).length >= ALL.length],
+  ['thuoc100', '🧠', 'Trí nhớ tốt', 'Thuộc 100 từ', () => ALL.filter(w => muc(w.id) >= 3).length >= 100],
+  ['chuoi3', '🔥', 'Khởi động', 'Học 3 ngày liên tiếp', () => S.chuoi.so >= 3],
+  ['chuoi7', '⚡', 'Một tuần bền bỉ', 'Học 7 ngày liên tiếp', () => S.chuoi.so >= 7],
+  ['chuoi30', '🌸', 'Thói quen vàng', 'Học 30 ngày liên tiếp', () => S.chuoi.so >= 30],
+  ['muctieu', '🎯', 'Đạt mục tiêu', 'Đạt mục tiêu học trong một ngày', () => S.homnay.ngay === ngayNay() && S.homnay.so >= S.cai.muctieu],
+  ['bai1', '🎌', 'Xong bài đầu', 'Thuộc toàn bộ một bài', () => BAI.some(b => thuocBai(b.so))],
+  ['bai6', '🗾', 'Nhà thám hiểm', 'Thuộc toàn bộ 6 bài', () => BAI.filter(b => thuocBai(b.so)).length >= 6],
+  ['kt100', '💯', 'Điểm tuyệt đối', 'Đúng 10/10 một bài kiểm tra', () => (S.tt.ktDu || 0) >= 1],
+  ['kt10', '📝', 'Chiến binh kiểm tra', 'Làm 10 bài kiểm tra', () => (S.tt.kt || 0) >= 10],
+  ['ghep', '🧩', 'Tay nhanh mắt sáng', 'Ghép xong một ván trong 60 giây, không sai', () => !!S.tt.ghepNhanh],
+  ['sao', '⭐', 'Biết mình biết ta', 'Đánh dấu 10 từ khó', () => Object.keys(S.sao).length >= 10],
+];
+function kiemHuyHieu() {
+  const moi = HUY_HIEU.filter(([k, , , , dk]) => !S.hh[k] && dk());
+  if (!moi.length) return;
+  moi.forEach(([k]) => S.hh[k] = ngayNay()); luu();
+  const [, icon, ten] = moi[0];
+  toast(`${icon} Huy hiệu mới: ${ten}!`); rung([30, 60, 30]);
+}
+
+// ===== Màn tiến độ: biểu đồ, bài cần ôn, từ hay sai, huy hiệu =====
+function manTienDo() {
+  dungLuyenViet(); THE = null; datTab('tiendo');
+  const ngay = [...Array(14)].map((_, k) => new Date(Date.now() - (13 - k) * DAY).toLocaleDateString('sv'));
+  const sl = ngay.map(n => S.ls[n] || { h: 0, d: 0, s: 0 }), max = Math.max(5, ...sl.map(x => x.h));
+  const tongTuan = sl.slice(7).reduce((a, x) => a + x.h, 0), tuanTruoc = sl.slice(0, 7).reduce((a, x) => a + x.h, 0);
+  const W = 320, H = 150, bw = W / 14;
+  const cot = sl.map((x, k) => {
+    const h = x.h / max * (H - 30), hd = x.d / max * (H - 30), xx = k * bw + 3;
+    return `<rect x="${xx}" y="${H - 18 - h}" width="${bw - 6}" height="${h}" rx="3" class="c-hoc"><title>${ngay[k]}: ${x.h} lượt</title></rect>
+      <rect x="${xx}" y="${H - 18 - hd}" width="${bw - 6}" height="${hd}" rx="3" class="c-dung"/>
+      <text x="${xx + (bw - 6) / 2}" y="${H - 4}" class="c-nhan">${+ngay[k].slice(8)}</text>`;
+  }).join('');
+  const bai = BAI.map(b => { const ds = tuCuaBai(b.so), d = ds.filter(w => daHoc(w.id)).length, t = ds.filter(w => muc(w.id) >= 3).length; return { b, n: ds.length, d, t }; });
+  const yeu = bai.filter(x => x.d > 0 && x.t < x.n).sort((a, z) => a.t / a.n - z.t / z.n).slice(0, 3);
+  const haySai = ALL.filter(w => S.tu[w.id] && S.tu[w.id].sai).sort((a, z) => S.tu[z.id].sai - S.tu[a.id].sai).slice(0, 8);
+  const coHH = HUY_HIEU.filter(([k]) => S.hh[k]).length;
+  app.innerHTML = `<header class="top"><h1>📊 Tiến độ học</h1></header>
+    <div class="stats">
+      <div class="card stat"><b>${Object.keys(S.tu).length}</b><span>từ đã học</span></div>
+      <div class="card stat"><b>${ALL.filter(w => muc(w.id) >= 3).length}</b><span>từ đã thuộc</span></div>
+      <div class="card stat"><b>🔥 ${S.chuoi.so}</b><span>ngày liên tiếp</span></div>
+    </div>
+    <div class="card"><b>14 ngày gần đây</b>
+      <div class="muted">Tuần này ${tongTuan} lượt học${tuanTruoc ? ` · tuần trước ${tuanTruoc}` : ''}${tuanTruoc && tongTuan > tuanTruoc ? ' 📈 Tiến bộ!' : ''}</div>
+      <svg viewBox="0 0 ${W} ${H}" class="bieudo">${cot}</svg>
+      <div class="chuthich"><span><i class="c-hoc"></i>Lượt học</span><span><i class="c-dung"></i>Trả lời đã nhớ / đúng</span></div></div>
+    ${yeu.length ? `<h2>🎯 Bài nên ôn thêm</h2><div class="lessons">${yeu.map(x => theBai(x.b)).join('')}</div>` : ''}
+    ${haySai.length ? `<h2>😵 Từ hay quên nhất</h2><div class="card list">${haySai.map(dongTu).join('')}</div>
+      <button class="bigbtn" style="margin-top:10px" onclick="batDauThe(ALL.filter(w=>S.tu[w.id]&&S.tu[w.id].sai).sort((a,z)=>S.tu[z.id].sai-S.tu[a.id].sai).slice(0,20),'Ôn từ hay quên')">🔁 Ôn 20 từ hay quên</button>` : ''}
+    <h2>📖 Mức thuộc từng bài</h2>
+    <div class="card">${bai.map(x => `<div class="baibar" onclick="manBai(${x.b.so})"><span>${hinhBai(x.b.so)} Bài ${x.b.so}</span>
+      <div class="bar"><i style="width:${x.t / x.n * 100}%"></i><i class="dahoc" style="width:${(x.d - x.t) / x.n * 100}%"></i></div><small>${x.t}/${x.n}</small></div>`).join('')}
+      <div class="chuthich"><span><i class="c-dung"></i>Đã thuộc</span><span><i class="c-hoc"></i>Đang học</span></div></div>
+    <h2>🏅 Huy hiệu (${coHH}/${HUY_HIEU.length})</h2>
+    <div class="huyhieu">${HUY_HIEU.map(([k, icon, ten, mota]) => `<div class="hh ${S.hh[k] ? 'co' : ''}"><div class="hh-icon">${icon}</div><b>${ten}</b><small>${mota}</small></div>`).join('')}</div>`;
+  window.scrollTo(0, 0);
+}
+
+// ===== Nhắc học hằng ngày: tạo sự kiện lặp lại cho ứng dụng Lịch =====
+function taoNhacNho() {
+  const [g, p] = (S.cai.gionhac || '20:00').split(':');
+  const d = new Date(); d.setHours(+g, +p, 0, 0); if (d < new Date()) d.setDate(d.getDate() + 1);
+  const f = x => String(x).padStart(2, '0');
+  const bd = `${d.getFullYear()}${f(d.getMonth() + 1)}${f(d.getDate())}T${f(g)}${f(p)}00`;
+  const kt = `${d.getFullYear()}${f(d.getMonth() + 1)}${f(d.getDate())}T${f(g)}${f(+p + 10 > 59 ? 59 : +p + 10)}00`;
+  const link = location.href.split('#')[0];
+  const ics = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//Tu Vung Nhat//VI', 'BEGIN:VEVENT', `UID:nhac-hoc-tu-vung-${Date.now()}@tu-vung-nhat`,
+    `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').slice(0, 15)}Z`, `DTSTART:${bd}`, `DTEND:${kt}`, 'RRULE:FREQ=DAILY',
+    'SUMMARY:🎌 Học từ vựng tiếng Nhật', `DESCRIPTION:Mở ứng dụng học vài từ nhé: ${link}`, `URL:${link}`,
+    'BEGIN:VALARM', 'ACTION:DISPLAY', 'DESCRIPTION:Đến giờ học từ vựng tiếng Nhật!', 'TRIGGER:PT0M', 'END:VALARM', 'END:VEVENT', 'END:VCALENDAR'].join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([ics], { type: 'text/calendar' }));
+  a.download = 'nhac-hoc-tieng-nhat.ics'; a.click();
+  toast('Đã tạo lời nhắc. Mở tệp vừa tải và chọn “Thêm vào Lịch”.');
 }
 
 manChinh();
