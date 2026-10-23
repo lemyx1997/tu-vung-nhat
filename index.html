@@ -524,8 +524,25 @@ function dungLuyenViet() { VIET = VIET && { loai: VIET.loai }; }
 
 // ===== Kiểm tra (trắc nghiệm, nghe, gõ romaji) =====
 let KT = null;
-const chuanRomaji = s => s.toLowerCase().replace(/\(.*?\)/g, '').replace(/[^a-z]/g, '').replace(/ou/g, 'oo').replace(/ei/g, 'ee').replace(/nn/g, 'n');
-const goDuoc = w => !/[～~▲/]/.test(w.romaji) && w.romaji.length <= 22;
+// Chấm romaji dễ tính: bỏ qua hoa/thường, dấu cách, dấu ngoặc, cách viết nguyên âm dài và kiểu romaji khác nhau
+const KIEU_ROMAJI = [[/sy/g, 'sh'], [/si/g, 'shi'], [/ty/g, 'ch'], [/ti/g, 'chi'], [/tu/g, 'tsu'], [/hu/g, 'fu'], [/zy|jy/g, 'j'], [/zi/g, 'ji'], [/di/g, 'ji'], [/du/g, 'zu'], [/m(?=[bmp])/g, 'n']];
+function chuanRomaji(s) {
+  s = s.toLowerCase().normalize('NFD').replace(/([aeiou])̄/g, '$1$1').replace(/[̀-ͯ]/g, '').replace(/[^a-z]/g, '');
+  KIEU_ROMAJI.forEach(([a, b]) => s = s.replace(a, b));
+  return s.replace(/shh/g, 'sh').replace(/chh/g, 'ch').replace(/tss/g, 'ts').replace(/ou/g, 'o').replace(/ei/g, 'e').replace(/oh(?![aeiou])/g, 'o')
+    .replace(/([aeiou])\1+/g, '$1').replace(/nn/g, 'n');
+}
+const chuanKana = s => s.replace(/[ァ-ヶ]/g, c => String.fromCharCode(c.charCodeAt(0) - 96)).replace(/[^ぁ-ゖー]/g, '').replace(/ー/g, '');
+// Các đáp án chấp nhận: có hoặc không có phần trong ngoặc, mỗi cách viết sau dấu /
+function dapAnGo(w) {
+  const r = new Set(), k = new Set();
+  w.romaji.split('/').forEach(x => { r.add(chuanRomaji(x)); r.add(chuanRomaji(x.replace(/\(.*?\)/g, ''))); });
+  w.kana.split(/[／/]/).forEach(x => { k.add(chuanKana(x)); k.add(chuanKana(x.replace(/[（(].*?[）)]/g, ''))); });
+  r.delete(''); k.delete('');
+  return { r, k };
+}
+const khoangCach = (a, b) => { const d = Array.from({ length: a.length + 1 }, (_, i) => [i]); for (let j = 1; j <= b.length; j++) d[0][j] = j; for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1)); return d[a.length][b.length]; };
+const goDuoc = w => !/[～~▲]/.test(w.romaji) && w.romaji.length <= 30;
 function batDauKiemTra(ds, ten, so) {
   if (ds.length < 1) return toast('Chưa có từ để kiểm tra.');
   const chon = tron(ds).slice(0, 10);
@@ -551,7 +568,7 @@ function cauHoi() {
   if (kieu === 'go') { dau = 'Gõ cách đọc bằng romaji:'; than = `<div class="prompt jp">${esc(w.chu)}</div><div class="muted">${esc(w.nghia)}</div>`; }
   box.innerHTML = `<div class="progress"><i style="width:${i / ds.length * 100}%"></i></div>
     <div class="card q pop"><div class="ask">Câu ${i + 1}/${ds.length} · ${dau}</div>${than}
-    ${kieu === 'go' ? `<input class="typein" id="goin" autocomplete="off" autocapitalize="off" placeholder="vd: arigatoo" onkeydown="if(event.key==='Enter')kiemGo()">
+    ${kieu === 'go' ? `<input class="typein" id="goin" autocomplete="off" autocapitalize="off" placeholder="Gõ romaji (vd: arigato) hoặc hiragana" onkeydown="if(event.key==='Enter')kiemGo()">
       <div class="row" style="margin-top:10px"><button class="bigbtn alt" onclick="kiemGo(true)">Không biết</button><button class="bigbtn" onclick="kiemGo()">Kiểm tra</button></div>`
       : `<div class="opts">${opts.map((o, k) => `<button class="opt ${kieu === 'vj' ? 'jp' : ''}" onclick="chonDA(${k})">${esc(kieu === 'vj' ? o.chu : o.nghia)}</button>`).join('')}</div>`}
     <div class="feedback" id="fb"></div><div id="tiep"></div></div>`;
@@ -577,8 +594,17 @@ function chonDA(k) {
 }
 function kiemGo(boQua) {
   if (KT.xong) return;
-  const w = KT.ds[KT.i], v = chuanRomaji($('#goin').value);
-  traLoi(!boQua && v && w.romaji.split('/').some(r => chuanRomaji(r) === v));
+  const w = KT.ds[KT.i], go = $('#goin').value, { r, k } = dapAnGo(w);
+  const v = chuanRomaji(go), vk = chuanKana(go);
+  if (boQua || (!v && !vk)) return traLoi(false);
+  if ((v && r.has(v)) || (vk && k.has(vk))) return traLoi(true);
+  // sai một chữ cái ở từ dài vẫn tính đúng, kèm nhắc cách viết chuẩn
+  if (v.length >= 5 && [...r].some(x => khoangCach(x, v) <= 1)) {
+    traLoi(true);
+    $('#fb').insertAdjacentHTML('beforeend', `<div style="color:var(--gold);margin-top:4px">Gần đúng! Cách viết chuẩn: <b>${esc(w.romaji)}</b></div>`);
+    return;
+  }
+  traLoi(false);
 }
 function ketQuaKT() {
   const { dung, ds, sai } = KT, pt = Math.round(dung / ds.length * 100);
