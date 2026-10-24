@@ -209,12 +209,16 @@ const muc = id => (S.tu[id] ? S.tu[id].m : 0);
 const daHoc = id => !!S.tu[id];
 const canOn = () => ALL.filter(w => S.tu[w.id] && S.tu[w.id].h <= Date.now());
 
-function ghiNho(id, ketQua) { // ketQua: 0 quên, 1 tạm, 2 nhớ
-  const t = S.tu[id] || { m: 0, h: 0 };
-  t.m = ketQua === 0 ? 1 : ketQua === 1 ? Math.max(1, t.m) : Math.min(t.m + 1, KHOANG.length - 1);
-  t.h = Date.now() + (ketQua === 0 ? 10 * 60000 : KHOANG[t.m] * DAY - 3600000);
-  if (ketQua === 0) t.sai = (t.sai || 0) + 1;
-  S.tu[id] = t;
+// ketQua: 0 quên, 1 tạm, 2 nhớ. tuThe = chấm từ thẻ học; chỉ thẻ học mới đưa từ mới vào lịch ôn tập,
+// còn Kiểm tra/Ghép chỉ cập nhật lịch cho từ đã học (vẫn tính lượt học cho biểu đồ, chuỗi ngày).
+function ghiNho(id, ketQua, tuThe) {
+  if (S.tu[id] || tuThe) {
+    const t = S.tu[id] || { m: 0, h: 0 };
+    t.m = ketQua === 0 ? 1 : ketQua === 1 ? Math.max(1, t.m) : Math.min(t.m + 1, KHOANG.length - 1);
+    t.h = Date.now() + (ketQua === 0 ? 10 * 60000 : KHOANG[t.m] * DAY - 3600000);
+    if (ketQua === 0) t.sai = (t.sai || 0) + 1;
+    S.tu[id] = t;
+  }
   const n = ngayNay();
   // lịch sử theo ngày cho biểu đồ tiến độ
   const ls = S.ls[n] || (S.ls[n] = { h: 0, d: 0, s: 0 });
@@ -387,6 +391,7 @@ function veThe() {
       <button class="no" onclick="chamThe(0)">Chưa nhớ</button>
       <button class="mid" onclick="chamThe(1)">Hơi nhớ</button>
       <button class="yes" onclick="chamThe(2)">Đã nhớ</button></div>
+    ${THE.ten === 'Ôn tập hôm nay' ? '<button class="bigbtn alt" style="margin-top:10px;color:var(--bad)" onclick="boKhoiOn()">🚫 Chưa học từ này – bỏ khỏi ôn tập</button>' : ''}
     <div class="nav"><button class="bigbtn alt" ${i ? '' : 'disabled'} onclick="THE.i--;veThe()">← Từ trước</button>
       <span class="count">${i < THE.goc ? `${i + 1} / ${THE.goc}` : `Ôn lại ${i - THE.goc + 1} / ${ds.length - THE.goc}`}</span></div>
     <p class="muted" style="text-align:center">👉 Vuốt phải = Đã nhớ · 👈 Vuốt trái = Chưa nhớ</p>`;
@@ -458,9 +463,17 @@ function xemHan(c, id) {
 function moNghia() { veThe(); }
 function chamThe(k) {
   const w = THE.ds[THE.i];
-  ghiNho(w.id, k);
+  ghiNho(w.id, k, true);
   // từ chưa nhớ gặp lại một lần ở cuối lượt (không lặp mãi)
   if (k === 0 && !THE.lai[w.id]) { THE.lai[w.id] = 1; THE.ds.push(w); }
+  THE.i++; veThe();
+}
+// Bỏ một từ chưa thực sự học khỏi lịch ôn tập (trở về trạng thái chưa học)
+function boKhoiOn() {
+  const w = THE.ds[THE.i];
+  delete S.tu[w.id]; luu();
+  THE.ds = THE.ds.filter((x, k) => k <= THE.i || x.id !== w.id);
+  toast('Đã bỏ “' + w.chu + '” khỏi ôn tập. Từ này sẽ hiện lại khi bạn học bài ' + w.bai + '.');
   THE.i++; veThe();
 }
 function doiSao(id) { if (S.sao[id]) delete S.sao[id]; else S.sao[id] = 1; luu(); if (THE) veThe(); }
