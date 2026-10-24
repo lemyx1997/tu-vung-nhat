@@ -215,7 +215,7 @@
 <nav class="tabbar" id="tabbar">
   <button data-k="home" onclick="manChinh()"><span>🏠</span>Trang chủ</button>
   <button data-k="bai" onclick="manDsBai()"><span>📚</span>Bài học</button>
-  <button data-k="on" onclick="canOn().length ? batDauThe(canOn(), 'Ôn tập hôm nay') : toast('Chưa có từ cần ôn. Hãy học từ mới trước nhé!')"><span>🔁</span>Ôn tập<i id="soOn"></i></button>
+  <button data-k="on" onclick="manOn()"><span>🔁</span>Ôn tập<i id="soOn"></i></button>
   <button data-k="tiendo" onclick="manTienDo()"><span>📊</span>Tiến độ</button>
   <button data-k="cai" onclick="manCaiDat()"><span>⚙️</span>Cài đặt</button>
 </nav>
@@ -234,7 +234,7 @@ const BY_ID = Object.fromEntries(ALL.map(w => [w.id, w]));
 const DAY = 86400000;
 const KHOANG = [0, 1, 3, 7, 14, 30, 60]; // số ngày chờ trước lần ôn tiếp theo, theo mức nhớ
 
-let S = { tu: {}, sao: {}, chuoi: { ngay: '', so: 0 }, homnay: { ngay: '', so: 0 }, ls: {}, tt: {}, hh: {}, cai: { romaji: true, kana: true, tudoc: false, tocdo: 0.85, muctieu: 20, gionhac: '20:00' } };
+let S = { tu: {}, npo: {}, sao: {}, chuoi: { ngay: '', so: 0 }, homnay: { ngay: '', so: 0 }, ls: {}, tt: {}, hh: {}, cai: { romaji: true, kana: true, tudoc: false, tocdo: 0.85, muctieu: 20, gionhac: '20:00' } };
 try { const d = JSON.parse(localStorage.getItem(KEY)); if (d) S = { ...S, ...d, cai: { ...S.cai, ...d.cai } }; } catch (e) {}
 const luu = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
 const ngayNay = () => new Date().toLocaleDateString('sv');
@@ -252,6 +252,28 @@ function ghiNho(id, ketQua, tuThe) {
     if (ketQua === 0) t.sai = (t.sai || 0) + 1;
     S.tu[id] = t;
   }
+  ghiLuot(ketQua);
+}
+
+// Câu luyện ngữ pháp cũng có lịch ôn ngắt quãng riêng (S.npo), cùng khoảng cách ngày như từ vựng.
+// Chỉ câu đã được trả lời trong mục Ngữ pháp mới vào lịch; câu chưa đến hạn mà trả lời đúng lại thì không tăng mức.
+let _npq = null;
+const NPQ = () => _npq || (_npq = (() => {
+  const m = {};
+  NP.forEach(l => l.diem.forEach((d, k) => (d.luyen || []).forEach((q, j) => { m[l.so + '.' + k + '-' + j] = { q, so: l.so, k, mau: d.mau }; })));
+  return m;
+})());
+const canOnNP = () => Object.keys(S.npo).filter(id => NPQ()[id] && S.npo[id].h <= Date.now());
+function ghiNhoNP(qid, dung) {
+  const t = S.npo[qid] || { m: 0, h: 0 };
+  if (!dung) { t.m = 1; t.h = Date.now() + 10 * 60000; t.sai = (t.sai || 0) + 1; }
+  else if (t.h <= Date.now() + 20 * 60000) { t.m = Math.min(t.m + 1, KHOANG.length - 1); t.h = Date.now() + KHOANG[t.m] * DAY - 3600000; }
+  S.npo[qid] = t;
+  ghiLuot(dung ? 2 : 0);
+}
+
+// Tính vào lượt học hôm nay, biểu đồ 14 ngày và chuỗi ngày liên tiếp
+function ghiLuot(ketQua) {
   const n = ngayNay();
   // lịch sử theo ngày cho biểu đồ tiến độ
   const ls = S.ls[n] || (S.ls[n] = { h: 0, d: 0, s: 0 });
@@ -313,7 +335,7 @@ function loiChao() {
 }
 function manChinh() {
   dungLuyenViet();
-  const due = canOn().length, hoc = Object.keys(S.tu).length, thuoc = ALL.filter(w => muc(w.id) >= 3).length;
+  const due = canOn().length + canOnNP().length, hoc = Object.keys(S.tu).length, thuoc = ALL.filter(w => muc(w.id) >= 3).length;
   const homnay = S.homnay.ngay === ngayNay() ? S.homnay.so : 0;
   const chuoi = (S.chuoi.ngay === ngayNay() || S.chuoi.ngay === new Date(Date.now() - DAY).toLocaleDateString('sv')) ? S.chuoi.so : 0;
   const tiep = BAI.find(b => tuCuaBai(b.so).some(w => !daHoc(w.id)));
@@ -327,7 +349,7 @@ function manChinh() {
     </div>
     ${tiep ? `<button class="bigbtn" style="margin-bottom:10px" onclick="manBai(${tiep.so})">▶ Học tiếp: Bài ${tiep.so} – ${esc(viBai(tiep.so))}</button>` : ''}
     <div class="row">
-      <button class="bigbtn alt" ${due ? '' : 'disabled'} onclick="batDauThe(canOn(), 'Ôn tập hôm nay', true)">🔁 Ôn tập (${due})</button>
+      <button class="bigbtn alt" ${due ? '' : 'disabled'} onclick="manOn()">🔁 Ôn tập (${due})</button>
       <button class="bigbtn alt" ${hoc >= 4 ? '' : 'disabled'} onclick="batDauKiemTra(ALL.filter(w=>daHoc(w.id)), 'Kiểm tra tổng hợp')">📝 Kiểm tra</button>
     </div>
     ${Object.keys(S.sao).length ? `<button class="bigbtn alt" style="margin-top:10px" onclick="batDauThe(ALL.filter(w=>S.sao[w.id]), 'Từ khó ⭐')">⭐ Ôn từ khó đã đánh dấu (${Object.keys(S.sao).length})</button>` : ''}
@@ -512,7 +534,7 @@ function boKhoiOn() {
   THE.i++; veThe();
 }
 function doiSao(id) { if (S.sao[id]) delete S.sao[id]; else S.sao[id] = 1; luu(); if (THE) veThe(); }
-function ve_lai() { const so = THE.ds[0].bai, motBai = THE.ds.every(w => w.bai === so); THE = null; motBai ? manBai(so) : manChinh(); }
+function ve_lai() { if (THE.ten === 'Ôn tập hôm nay') { THE = null; return manOn(); } const so = THE.ds[0].bai, motBai = THE.ds.every(w => w.bai === so); THE = null; motBai ? manBai(so) : manChinh(); }
 function xongThe() {
   app.innerHTML = `<div class="card done pop"><div class="big">🎉</div><h2>Xong lượt “${esc(THE.ten)}”!</h2>
     <p>Bạn vừa học ${THE.goc} từ. Các từ sẽ tự quay lại trong mục <b>Ôn tập</b> đúng lúc sắp quên.</p>
@@ -712,7 +734,7 @@ function theBai(b) {
 }
 function datTab(k) {
   document.querySelectorAll('#tabbar button').forEach(b => b.classList.toggle('on', b.dataset.k === k));
-  const n = canOn().length; $('#soOn').textContent = n ? (n > 99 ? '99+' : n) : '';
+  const n = canOn().length + canOnNP().length; $('#soOn').textContent = n ? (n > 99 ? '99+' : n) : '';
 }
 const rung = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} };
 function manDsBai() {
@@ -817,17 +839,18 @@ function chiTietNP(so, k, d) {
     ${d.loi ? `<div class="meo loi"><div class="meo-tieu">⚠️ Lỗi hay gặp</div><div>${esc(d.loi)}</div></div>` : ''}
     ${d.vd.length ? `<div class="npkhoi"><div class="nptieu">Ví dụ trong giáo trình</div>${d.vd.map(dongCau).join('')}</div>` : ''}
     ${d.them && d.them.length ? `<div class="npkhoi"><div class="nptieu">Ví dụ thêm</div>${d.them.map(dongCau).join('')}</div>` : ''}
-    ${d.luyen ? `<div class="npkhoi"><div class="nptieu">✏️ Luyện tập nhanh</div>${d.luyen.map((q, j) => cauLuyen(q, key + '-' + j, key)).join('')}</div>` : ''}
+    ${d.luyen ? `<div class="npkhoi"><div class="nptieu">✏️ Luyện tập nhanh</div>${d.luyen.map((q, j) => cauLuyen(q, key + '-' + j, key + '-' + j)).join('')}</div>` : ''}
     ${d.mnn ? `<div class="muted" style="margin-top:8px">📚 Học thêm: Minna no Nihongo Sơ cấp 1 – Bài ${d.mnn}</div>` : ''}`;
 }
 // Một câu luyện tập điền chỗ trống: chọn đáp án, báo đúng/sai ngay
-function cauLuyen([cau, dung, sai, giai], id, key) {
+// qid = mã câu luyện tập, dạng "bài.mục-số câu" (vd 5.0-1); mỗi câu có lịch ôn riêng
+function cauLuyen([cau, dung, sai, giai], id, qid) {
   const ds = tron([dung, ...sai]);
   return `<div class="luyen" id="ly-${id}"><div class="jp luyencau">${esc(cau).replace('＿＿', '<span class="trong">＿＿</span>')}</div>
-    <div class="luyenchon">${ds.map(x => `<button class="pill jp" onclick='chonLuyen(this, ${JSON.stringify(x === dung)}, ${JSON.stringify(key)})'>${esc(x)}</button>`).join('')}</div>
+    <div class="luyenchon">${ds.map(x => `<button class="pill jp" onclick='chonLuyen(this, ${JSON.stringify(x === dung)}, ${JSON.stringify(qid)})'>${esc(x)}</button>`).join('')}</div>
     <div class="luyengiai hidden">${esc(giai)} <span class="muted">→ Đáp án: <b class="jp">${esc(dung)}</b></span></div></div>`;
 }
-function chonLuyen(b, dung, key) {
+function chonLuyen(b, dung, qid) {
   const o = b.closest('.luyen');
   if (o.dataset.xong) return;
   o.dataset.xong = 1;
@@ -835,15 +858,68 @@ function chonLuyen(b, dung, key) {
   if (!dung) o.querySelectorAll('.luyenchon button').forEach(x => { if (x.textContent === o.querySelector('.luyengiai b').textContent) x.classList.add('dung'); });
   o.querySelector('.trong').textContent = o.querySelector('.luyengiai b').textContent;
   o.querySelector('.luyengiai').classList.remove('hidden');
-  if (dung && key) { S.np = S.np || {}; S.np[key] = 1; S.tt.np = (S.tt.np || 0) + 1; luu(); kiemHuyHieu(); }
+  if (!qid) return;
+  ghiNhoNP(qid, dung);
+  if (dung) { S.np = S.np || {}; S.np[qid.split('-')[0]] = 1; S.tt.np = (S.tt.np || 0) + 1; }
+  luu(); kiemHuyHieu();
+  if (NPON) npOnXong(dung, qid);
+}
+
+// ===== Trang Ôn tập chung: từ vựng + ngữ pháp =====
+let NPON = null;
+function manOn() {
+  dungLuyenViet(); THE = null; NPON = null; datTab('on');
+  const tv = canOn().length, ids = canOnNP(), np = ids.length, tong = Object.keys(S.npo).filter(id => NPQ()[id]).length;
+  const bai = [...new Set(ids.map(id => NPQ()[id].so))].sort((a, z) => a - z);
+  app.innerHTML = `<header class="top"><h1>🔁 Ôn tập hôm nay</h1></header>
+    ${tv + np ? '' : `<div class="card done pop"><div class="big">🎉</div><h2>Hôm nay bạn đã ôn xong!</h2><p class="muted">Học từ mới hoặc làm bài luyện ngữ pháp để có thêm bài ôn. Mọi thứ sẽ tự quay lại đúng lúc sắp quên.</p>
+      <div class="row"><button class="bigbtn" onclick="manDsBai()">📚 Chọn bài học</button></div></div>`}
+    <div class="card" style="margin-top:10px"><div class="row" style="align-items:center"><div style="flex:1"><b>📖 Từ vựng</b><div class="muted">${tv ? tv + ' từ đến hạn ôn' : 'Chưa có từ đến hạn'} · đang theo dõi ${Object.keys(S.tu).length} từ</div></div></div>
+      <button class="bigbtn" style="margin-top:10px" ${tv ? '' : 'disabled'} onclick="batDauThe(canOn(), 'Ôn tập hôm nay', true)">Ôn từ vựng (${tv})</button></div>
+    <div class="card" style="margin-top:10px"><b>📘 Ngữ pháp</b>
+      <div class="muted">${np ? np + ' câu đến hạn ôn' + (bai.length ? ' · bài ' + bai.join(', ') : '') : 'Chưa có câu đến hạn'} · đang theo dõi ${tong} câu</div>
+      <button class="bigbtn" style="margin-top:10px" ${np ? '' : 'disabled'} onclick="onTapNP()">Ôn ngữ pháp (${np})</button>
+      ${tong ? '' : '<p class="muted" style="margin-bottom:0">Vào một bài → thẻ 📘 Ngữ pháp → làm “Luyện tập nhanh”. Câu bạn làm sẽ tự vào lịch ôn.</p>'}</div>`;
+  window.scrollTo(0, 0);
+}
+// Một lượt ôn ngữ pháp: tối đa 10 câu đến hạn (cũ nhất trước); câu sai gặp lại một lần cuối lượt
+function onTapNP() {
+  const ds = canOnNP().sort((a, z) => S.npo[a].h - S.npo[z].h).slice(0, 10);
+  if (!ds.length) return toast('Chưa có câu ngữ pháp cần ôn.');
+  NPON = { ds: tron(ds), goc: ds.length, i: 0, dung: 0, lai: {} };
+  veOnNP();
+}
+function veOnNP() {
+  const o = NPON, qid = o.ds[o.i];
+  if (!qid) return xongOnNP();
+  const { q, so, mau } = NPQ()[qid];
+  app.innerHTML = `<header class="top"><button class="iconbtn" onclick="manOn()">←</button><h1>Ôn ngữ pháp</h1></header>
+    <div class="progress"><i style="width:${Math.min(1, o.i / o.goc) * 100}%"></i></div>
+    <div class="card pop"><div class="muted" style="font-size:12px">${o.i < o.goc ? `Câu ${o.i + 1}/${o.goc}` : 'Làm lại câu sai'} · Bài ${so} · <span class="jp">${esc(mau)}</span></div>
+      ${cauLuyen(q, 'on-' + qid, qid)}<div id="npTiep"></div></div>`;
+  window.scrollTo(0, 0);
+}
+function npOnXong(dung, qid) {
+  const o = NPON;
+  // đúng ngay lần đầu thì được tính; sai lần đầu thì gặp lại một lần cuối lượt (không tính)
+  if (!o.lai[qid]) { if (dung) o.dung++; else { o.lai[qid] = 1; o.ds.push(qid); } }
+  $('#npTiep').innerHTML = `<button class="bigbtn" style="margin-top:12px" onclick="NPON.i++;veOnNP()">Tiếp →</button>`;
+}
+function xongOnNP() {
+  const o = NPON, con = canOnNP().length;
+  app.innerHTML = `<div class="card done pop"><div class="big">${o.dung === o.goc ? '🏆' : '👍'}</div><h2>Đúng ngay lần đầu ${o.dung}/${o.goc} câu</h2>
+    <p class="muted">Câu làm đúng sẽ hẹn ôn lại sau vài ngày, câu sai sẽ quay lại sau ít phút.</p>
+    <div class="opts">${con ? `<button class="bigbtn" onclick="onTapNP()">Ôn tiếp (${con} câu)</button>` : ''}
+    <button class="bigbtn alt" onclick="manOn()">Về trang Ôn tập</button></div></div>`;
+  NPON = null;
 }
 // Luyện tập cả bài: trộn các câu luyện tập của mọi mục
 function onNguPhap(so) {
   const l = npBai(so), qs = [];
-  l.diem.forEach((d, k) => (d.luyen || []).forEach((q, j) => qs.push([q, so + '.' + k + '-' + j, so + '.' + k, d.mau])));
+  l.diem.forEach((d, k) => (d.luyen || []).forEach((q, j) => qs.push([q, so + '.' + k + '-' + j, d.mau])));
   const chon = tron(qs).slice(0, 10);
-  $('#npbox').innerHTML = `<div class="card"><b>✏️ Luyện tập ngữ pháp bài ${so}</b><div class="muted">Chọn từ đúng điền vào chỗ trống.</div></div>
-    ${chon.map(([q, id, key, mau], n) => `<div class="card" style="margin-top:10px"><div class="muted" style="font-size:12px">Câu ${n + 1} · <span class="jp">${esc(mau)}</span></div>${cauLuyen(q, 'all-' + id, key)}</div>`).join('')}
+  $('#npbox').innerHTML = `<div class="card"><b>✏️ Luyện tập ngữ pháp bài ${so}</b><div class="muted">Chọn từ đúng điền vào chỗ trống. Câu bạn làm sẽ tự vào lịch 🔁 Ôn tập.</div></div>
+    ${chon.map(([q, id, mau], n) => `<div class="card" style="margin-top:10px"><div class="muted" style="font-size:12px">Câu ${n + 1} · <span class="jp">${esc(mau)}</span></div>${cauLuyen(q, 'all-' + id, id)}</div>`).join('')}
     <div class="row" style="margin-top:12px"><button class="bigbtn alt" onclick="manNguPhap(${so})">← Về ngữ pháp</button><button class="bigbtn" onclick="onNguPhap(${so})">Làm lượt mới</button></div>`;
   window.scrollTo(0, 0);
 }
