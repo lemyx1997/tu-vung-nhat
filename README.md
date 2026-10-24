@@ -8,6 +8,7 @@
 - Nghe phát âm từng từ (giọng giáo trình hoặc giọng đọc chuẩn)
 - Thông tin chữ Hán: âm Hán Việt, bộ thủ, âm On/Kun, cấu tạo chữ
 - Luyện viết, ghép 3 cột (Nhật – Romaji – Việt), kiểm tra, ôn tập ngắt quãng
+- Ngữ pháp bài 3–18: mẫu câu, giải thích, ví dụ có hiragana, mẹo nhớ, lỗi hay gặp, luyện tập
 - Hoạt hình thứ tự nét viết, biểu đồ tiến độ, huy hiệu, nhắc học hằng ngày
 - Cài lên điện thoại và dùng được khi không có mạng
 

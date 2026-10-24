@@ -1,6 +1,6 @@
 ﻿// GiÃºp á»©ng dá»¥ng má»Ÿ Ä‘Æ°á»£c khi khÃ´ng cÃ³ máº¡ng: lÆ°u sáºµn cÃ¡c tá»‡p chÃ­nh.
-const CORE = 'tu-vung-core-v4';
-const FILES = ['./', 'index.html', 'tu-vung.js', 'tieng-viet.js', 'am-thanh.js', 'chu-han.js', 'net-viet.js', 'manifest.json', 'icon-192.png', 'icon-512.png'];
+const CORE = 'tu-vung-core-v5';
+const FILES = ['./', 'index.html', 'tu-vung.js', 'tieng-viet.js', 'am-thanh.js', 'chu-han.js', 'net-viet.js', 'ngu-phap.js', 'np-am.js', 'manifest.json', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CORE).then(c => c.addAll(FILES)).then(() => self.skipWaiting()));

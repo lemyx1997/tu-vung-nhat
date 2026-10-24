@@ -120,6 +120,37 @@
   .hh.co { opacity: 1; filter: none; border: 2px solid var(--gold); }
   .hh-icon { font-size: 30px; }
   .hh small { display: block; color: var(--muted); font-size: 11px; margin-top: 2px; }
+  .npmuc { margin-bottom: 10px; padding: 12px 14px; }
+  .npmuc summary { display: flex; align-items: center; gap: 10px; cursor: pointer; list-style: none; font-weight: 700; }
+  .npmuc summary::-webkit-details-marker { display: none; }
+  .npmuc summary::after { content: '▾'; margin-left: auto; color: var(--muted); transition: transform .2s; }
+  .npmuc[open] summary::after { transform: rotate(180deg); }
+  .npso { color: var(--main); font-size: 20px; flex: none; }
+  .npmau { font-size: 16px; line-height: 1.4; }
+  .npxong { color: var(--green); font-weight: 800; }
+  .npkhoi { margin-top: 12px; }
+  .nptieu { font-size: 13px; font-weight: 800; color: var(--main); margin-bottom: 4px; }
+  .npcau { display: flex; gap: 8px; align-items: center; padding: 6px 0; border-bottom: 1px dashed var(--line); }
+  .npcau:last-child { border: none; }
+  .npjp { font-size: 17px; line-height: 2; }
+  .npjp rt { font-size: .55em; }
+  .npvi { font-size: 13px; color: var(--muted); }
+  .vai { flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--main-soft); color: var(--main); font-weight: 800; font-size: 12px; display: grid; place-items: center; }
+  .nghe { width: 38px; height: 38px; min-height: 38px; font-size: 16px; flex: none; }
+  .npgiai { margin: 0; padding-left: 18px; font-size: 14px; line-height: 1.55; }
+  .npgiai li + li { margin-top: 4px; }
+  .meo.loi { background: var(--bad-soft); } .meo.loi .meo-tieu { color: var(--bad); }
+  .luyen { padding: 8px 0; }
+  .luyencau { font-size: 17px; margin-bottom: 6px; }
+  .trong { color: var(--main); font-weight: 800; border-bottom: 2px solid var(--main); padding: 0 4px; }
+  .luyenchon { display: flex; gap: 8px; flex-wrap: wrap; }
+  .luyenchon .dung { background: var(--green-soft); border-color: var(--green); color: var(--green); }
+  .luyenchon .sai { background: var(--bad-soft); border-color: var(--bad); color: var(--bad); }
+  .luyengiai { font-size: 13px; margin-top: 6px; }
+  .npbang { overflow-x: auto; margin-top: 10px; }
+  .npbang table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  .npbang th, .npbang td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+  .npbang th { background: var(--main-soft); }
   .vdtu { border-top: 1px solid var(--line); padding-top: 6px; margin-top: 6px; }
   .romaji { font-size: 18px; color: var(--blue); min-height: 26px; }
   .accent { font-size: 13px; color: var(--muted); }
@@ -192,6 +223,8 @@
 <script src="tieng-viet.js"></script>
 <script src="am-thanh.js" onerror="window.AM={}"></script>
 <script src="chu-han.js" onerror="window.FURI={};window.HAN={};window.BP={}"></script>
+<script src="ngu-phap.js" onerror="window.NP=[]"></script>
+<script src="np-am.js" onerror="window.NPAM={}"></script>
 <script>
 // ===== Dữ liệu & lưu tiến độ =====
 const KEY = 'tuvung-nhapmon-v1';
@@ -330,7 +363,7 @@ function manBai(so, tab = 'hoc') {
   datTab('bai');
   let html = `<header class="top"><button class="iconbtn" onclick="manDsBai()">←</button>
     <h1><span class="muted" style="font-size:13px;display:block">${hinhBai(so)} Bài ${so} · <span class="jp">${esc(tenBai(so))}</span></span>${esc(viBai(so))}</h1></header>
-    <div class="tabs">${[['hoc', '📖 Học'], ['ds', '📋 Từ'], ['viet', '✍️ Viết'], ['ghep', '🧩 Ghép'], ['kt', '📝 Kiểm tra']].map(([k, t]) => `<button class="${tab === k ? 'on' : ''}" onclick="manBai(${so},'${k}')">${t}</button>`).join('')}</div>`;
+    <div class="tabs">${[['hoc', '📖 Học'], ['ds', '📋 Từ'], ...(npBai(so) ? [['np', '📘 Ngữ pháp']] : []), ['viet', '✍️ Viết'], ['ghep', '🧩 Ghép'], ['kt', '📝 Kiểm tra']].map(([k, t]) => `<button class="${tab === k ? 'on' : ''}" onclick="manBai(${so},'${k}')">${t}</button>`).join('')}</div>`;
   if (tab === 'hoc') {
     const moi = ds.filter(w => !daHoc(w.id)).length;
     html += `<div class="card" style="text-align:center">
@@ -345,6 +378,8 @@ function manBai(so, tab = 'hoc') {
     let last = null;
     html += `<div class="card list">${ds.map(w => { const h = w.muc !== last ? `<div class="secttl"><span class="jp">${esc(w.muc || '')}</span>${viMuc(w.muc) ? ' – ' + esc(viMuc(w.muc)) : ''}</div>` : ''; last = w.muc; return h + dongTu(w); }).join('')}</div>
       <p class="muted">Chấm màu: xám = chưa học · vàng = mới học · xanh = đã thuộc.</p>`;
+  } else if (tab === 'np') {
+    app.innerHTML = html + '<div id="npbox"></div>'; return manNguPhap(so);
   } else if (tab === 'ghep') {
     app.innerHTML = html + '<div id="ghepbox"></div>'; return troGhep(ds);
   } else if (tab === 'viet') {
@@ -737,6 +772,82 @@ function chamGhep(b) {
   }
 }
 
+// ===== Ngữ pháp theo bài =====
+const npBai = so => NP.find(l => l.so === so);
+// Đọc câu ví dụ: dùng file giọng đọc nếu có, không thì giọng của máy
+function docCau(jp) {
+  const n = NPAM[jp];
+  if (n === undefined) return docMay({ kana: jp.replace(/^[ＡＢＣＤA-D]\s*[：:]\s*/, '') });
+  if (amDang) amDang.pause();
+  amDang = new Audio('audio-np/' + n + '.mp3');
+  amDang.playbackRate = Math.min(1, S.cai.tocdo + 0.15);
+  amDang.play().catch(() => docMay({ kana: jp }));
+}
+// Câu tiếng Nhật kèm bản dịch và nút nghe; vai A/B tách ra để dễ đọc hội thoại
+function dongCau([jp, vi]) {
+  const m = jp.match(/^([ＡＢＣＤ])\s*[：:]\s*/), vai = m ? m[1] : '';
+  // hiragana trên chữ Hán (bật/tắt bằng nút “あ Cách đọc”)
+  let seg = (S.cai.kana && typeof NPFURI !== 'undefined' && NPFURI[jp]) || [[jp, '']];
+  if (m) { seg = seg.map(x => [...x]); seg[0][0] = seg[0][0].slice(m[0].length); }
+  const cau = seg.map(([t, r]) => r ? `<ruby>${esc(t)}<rt>${esc(r)}</rt></ruby>` : esc(t)).join('');
+  return `<div class="npcau">${vai ? `<span class="vai">${vai}</span>` : ''}<div style="flex:1"><div class="jp npjp">${cau}</div><div class="npvi">${esc(vi)}</div></div>
+    <button class="iconbtn nghe" onclick='docCau(${JSON.stringify(jp).replace(/'/g, '&#39;')})'>🔊</button></div>`;
+}
+function manNguPhap(so) {
+  const l = npBai(so), box = $('#npbox');
+  const soLuyen = l.diem.reduce((a, d) => a + (d.luyen ? d.luyen.length : 0), 0);
+  const daLam = l.diem.filter((d, k) => S.np && S.np[so + '.' + k]).length, tong = l.diem.filter(d => d.luyen).length;
+  box.innerHTML = `<div class="card" style="margin-bottom:12px">
+      <b>📘 Ngữ pháp bài ${so}</b> <span class="muted">· ${l.diem.length} mục · đã luyện ${daLam}/${tong}</span>
+      <div class="muted" style="margin-top:4px">Chạm vào từng mục để xem giải thích, ví dụ, mẹo nhớ và làm bài luyện tập.</div>
+      <button class="pill ${S.cai.kana ? 'on' : ''}" style="margin-top:8px" onclick="S.cai.kana=!S.cai.kana;luu();manNguPhap(${so})">あ Hiện cách đọc chữ Hán</button>
+      ${soLuyen ? `<button class="bigbtn" style="margin-top:10px" onclick="onNguPhap(${so})">✏️ Luyện tập ngữ pháp cả bài (${Math.min(10, soLuyen)} câu)</button>` : ''}</div>
+    ${l.diem.map((d, k) => `<details class="card npmuc" ${k === 0 ? 'open' : ''}>
+      <summary><span class="npso">${d.tongHop ? '📋' : d.so}</span><span class="jp npmau">${esc(d.mau)}</span>${S.np && S.np[so + '.' + k] ? '<span class="npxong">✓</span>' : ''}</summary>
+      ${chiTietNP(so, k, d)}</details>`).join('')}
+    <p class="muted" style="font-size:11px">Mẫu câu, giải thích và ví dụ: tài liệu ngữ pháp Irodori Nhập môn ©The Japan Foundation. Mẹo nhớ, lỗi hay gặp, ví dụ thêm, luyện tập: biên soạn bổ sung, đối chiếu Minna no Nihongo Sơ cấp 1.</p>`;
+}
+function chiTietNP(so, k, d) {
+  if (d.tongHop) return d.bang ? `<div class="npbang"><table><tr>${d.bang.cot.map(c => `<th>${esc(c)}</th>`).join('')}</tr>
+    ${d.bang.dong.map(r => `<tr>${r.map((c, j) => `<td class="${j ? 'jp' : ''}">${esc(c).replace(/\n/g, '<br>')}</td>`).join('')}</tr>`).join('')}</table></div>` : '';
+  const key = so + '.' + k;
+  return `${d.cau.length ? `<div class="npkhoi"><div class="nptieu">Câu mẫu</div>${d.cau.map(dongCau).join('')}</div>` : ''}
+    ${d.giai.length ? `<div class="npkhoi"><div class="nptieu">Giải thích</div><ul class="npgiai">${d.giai.map(g => `<li>${esc(g)}</li>`).join('')}</ul></div>` : ''}
+    ${d.meo ? `<div class="meo"><div class="meo-tieu">💡 Mẹo ghi nhớ</div><div>${esc(d.meo)}</div></div>` : ''}
+    ${d.loi ? `<div class="meo loi"><div class="meo-tieu">⚠️ Lỗi hay gặp</div><div>${esc(d.loi)}</div></div>` : ''}
+    ${d.vd.length ? `<div class="npkhoi"><div class="nptieu">Ví dụ trong giáo trình</div>${d.vd.map(dongCau).join('')}</div>` : ''}
+    ${d.them && d.them.length ? `<div class="npkhoi"><div class="nptieu">Ví dụ thêm</div>${d.them.map(dongCau).join('')}</div>` : ''}
+    ${d.luyen ? `<div class="npkhoi"><div class="nptieu">✏️ Luyện tập nhanh</div>${d.luyen.map((q, j) => cauLuyen(q, key + '-' + j, key)).join('')}</div>` : ''}
+    ${d.mnn ? `<div class="muted" style="margin-top:8px">📚 Học thêm: Minna no Nihongo Sơ cấp 1 – Bài ${d.mnn}</div>` : ''}`;
+}
+// Một câu luyện tập điền chỗ trống: chọn đáp án, báo đúng/sai ngay
+function cauLuyen([cau, dung, sai, giai], id, key) {
+  const ds = tron([dung, ...sai]);
+  return `<div class="luyen" id="ly-${id}"><div class="jp luyencau">${esc(cau).replace('＿＿', '<span class="trong">＿＿</span>')}</div>
+    <div class="luyenchon">${ds.map(x => `<button class="pill jp" onclick='chonLuyen(this, ${JSON.stringify(x === dung)}, ${JSON.stringify(key)})'>${esc(x)}</button>`).join('')}</div>
+    <div class="luyengiai hidden">${esc(giai)} <span class="muted">→ Đáp án: <b class="jp">${esc(dung)}</b></span></div></div>`;
+}
+function chonLuyen(b, dung, key) {
+  const o = b.closest('.luyen');
+  if (o.dataset.xong) return;
+  o.dataset.xong = 1;
+  b.classList.add(dung ? 'dung' : 'sai'); rung(dung ? 30 : [60, 40, 60]);
+  if (!dung) o.querySelectorAll('.luyenchon button').forEach(x => { if (x.textContent === o.querySelector('.luyengiai b').textContent) x.classList.add('dung'); });
+  o.querySelector('.trong').textContent = o.querySelector('.luyengiai b').textContent;
+  o.querySelector('.luyengiai').classList.remove('hidden');
+  if (dung && key) { S.np = S.np || {}; S.np[key] = 1; S.tt.np = (S.tt.np || 0) + 1; luu(); kiemHuyHieu(); }
+}
+// Luyện tập cả bài: trộn các câu luyện tập của mọi mục
+function onNguPhap(so) {
+  const l = npBai(so), qs = [];
+  l.diem.forEach((d, k) => (d.luyen || []).forEach((q, j) => qs.push([q, so + '.' + k + '-' + j, so + '.' + k, d.mau])));
+  const chon = tron(qs).slice(0, 10);
+  $('#npbox').innerHTML = `<div class="card"><b>✏️ Luyện tập ngữ pháp bài ${so}</b><div class="muted">Chọn từ đúng điền vào chỗ trống.</div></div>
+    ${chon.map(([q, id, key, mau], n) => `<div class="card" style="margin-top:10px"><div class="muted" style="font-size:12px">Câu ${n + 1} · <span class="jp">${esc(mau)}</span></div>${cauLuyen(q, 'all-' + id, key)}</div>`).join('')}
+    <div class="row" style="margin-top:12px"><button class="bigbtn alt" onclick="manNguPhap(${so})">← Về ngữ pháp</button><button class="bigbtn" onclick="onNguPhap(${so})">Làm lượt mới</button></div>`;
+  window.scrollTo(0, 0);
+}
+
 // ===== Thứ tự nét viết (dữ liệu KanjiVG, chỉ tải khi cần) =====
 let netSan = null;
 function taiNet() {
@@ -799,6 +910,7 @@ const HUY_HIEU = [
   ['kt100', '💯', 'Điểm tuyệt đối', 'Đúng 10/10 một bài kiểm tra', () => (S.tt.ktDu || 0) >= 1],
   ['kt10', '📝', 'Chiến binh kiểm tra', 'Làm 10 bài kiểm tra', () => (S.tt.kt || 0) >= 10],
   ['ghep', '🧩', 'Tay nhanh mắt sáng', 'Ghép xong một ván trong 60 giây, không sai', () => !!S.tt.ghepNhanh],
+  ['np20', '📘', 'Thạo ngữ pháp', 'Làm đúng 20 câu luyện ngữ pháp', () => (S.tt.np || 0) >= 20],
   ['sao', '⭐', 'Biết mình biết ta', 'Đánh dấu 10 từ khó', () => Object.keys(S.sao).length >= 10],
 ];
 function kiemHuyHieu() {
